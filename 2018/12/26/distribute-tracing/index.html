@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Open Tracing,Zipkin,分布式," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="起因最近一直在做分布式链路追踪的调研和实践，整理一下其中的知识点。">
+<meta name="keywords" content="Open Tracing,Zipkin,分布式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="聊聊分布式链路追踪">
+<meta property="og:url" content="http://lidawn.github.io/2018/12/26//distribute-tracing//index.html">
+<meta property="og:site_name" content="大栗子菜市场">
+<meta property="og:description" content="起因最近一直在做分布式链路追踪的调研和实践，整理一下其中的知识点。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://s1.ax1x.com/2018/12/28/FWcJOg.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FoqPc6.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/03/FoImh6.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/05/F7Pap8.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/05/F7PCSU.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/05/F7PeFx.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/06/FHwvX6.png">
+<meta property="og:updated_time" content="2019-01-06T14:56:02.128Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="聊聊分布式链路追踪">
+<meta name="twitter:description" content="起因最近一直在做分布式链路追踪的调研和实践，整理一下其中的知识点。">
+<meta name="twitter:image" content="https://s1.ax1x.com/2018/12/28/FWcJOg.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lidawn.github.io/2018/12/26//distribute-tracing//"/>
+
+
+
+
+
+  <title>聊聊分布式链路追踪 | 大栗子菜市场</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大栗子菜市场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lidawn.github.io/2018/12/26/distribute-tracing/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="大栗子">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大栗子菜市场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">聊聊分布式链路追踪</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-12-26T00:00:00+08:00">
+                2018-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/12/26/distribute-tracing/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2018/12/26/distribute-tracing/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2018/12/26/distribute-tracing/" class="leancloud_visitors" data-flag-title="聊聊分布式链路追踪">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>最近一直在做分布式链路追踪的调研和实践，整理一下其中的知识点。</p>
+<a id="more"></a>
+<h2 id="什么是链路追踪"><a href="#什么是链路追踪" class="headerlink" title="什么是链路追踪"></a>什么是链路追踪</h2><p>分布式系统变得日趋复杂，越来越多的组件开始走向分布式化，如微服务、分布式数据库、分布式缓存等，使得后台服务构成了一种复杂的分布式网络。在服务能力提升的同时，复杂的网络结构也使问题定位更加困难。在一个请求在经过诸多服务过程中，出现了某一个调用失败的情况，查询具体的异常由哪一个服务引起的就变得十分抓狂，问题定位和处理效率是也会非常低。</p>
+<p>分布式链路追踪就是将一次分布式请求还原成调用链路，将一次分布式请求的调用情况集中展示，比如各个服务节点上的耗时、请求具体到达哪台机器上、每个服务节点的请求状态等等。</p>
+<h2 id="Dapper"><a href="#Dapper" class="headerlink" title="Dapper"></a>Dapper</h2><p>目前业界的链路追踪系统，如Twitter的<strong><a href="https://zipkin.io" target="_blank" rel="noopener">Zipkin</a></strong>，Uber的<strong><a href="https://www.jaegertracing.io/" target="_blank" rel="noopener">Jaeger</a></strong>，阿里的<strong><a href="https://cn.aliyun.com/aliware/news/monitoringsolution" target="_blank" rel="noopener">鹰眼</a></strong>，美团的<strong><a href="https://tech.meituan.com/mt_mtrace.html" target="_blank" rel="noopener">Mtrace</a></strong>等都基本被启发于google发表的<strong><a href="http://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/36356.pdf" target="_blank" rel="noopener">Dapper</a></strong>。 Dapper阐述了分布式系统，特别是微服务架构中链路追踪的概念、数据表示、埋点、传递、收集、存储与展示等技术细节。</p>
+<h3 id="Trace、Span、Annotations"><a href="#Trace、Span、Annotations" class="headerlink" title="Trace、Span、Annotations"></a>Trace、Span、Annotations</h3><p>为了实现链路追踪，dapper提出了trace，span，annotation的概念。<br>Trace的含义比较直观，就是链路，指一个请求经过后端所有服务的路径，可以用下面树状的图形表示。每一条链路都用一个全局唯一的traceid来标识。</p>
+<p><img src="https://s1.ax1x.com/2018/12/28/FWcJOg.png" alt="trace1"></p>
+<p>Span之间存在着父子关系，上游的span是下游的父span，例如图中”frontend.request”会调用”backend.dosomething”,”backend.dosomething”便成为”frontend.request”的子span。 </p>
+<p><img src="https://s2.ax1x.com/2019/01/04/FoqPc6.png" alt="span2"></p>
+<p>链路中的rpc调用由span来表示，对应着树状图中的边，每个span由spanid和parentid来标识，spanid在一条链路中唯一。<br>下图是dapper论文中给出的一个”hepler.call”调用的span详解。<br>一个span一般由client和server两个部分的信息组成。按照时间顺序来解释，client节点（或者是调用方）首先发出请求，产生”client send”(cs)事件，紧接着server节点（或者是提供方）收到请求，产生”server receive”(sr)事件，server处理完成之后回复给client，产生”server send”事件，最后client收到回复，产生”client receive”事件。<br>Client与server两个节点的span信息合并成一次完整的调用，即一个完整的span。</p>
+<p><img src="https://s2.ax1x.com/2019/01/03/FoImh6.png" alt="span1"></p>
+<p>Dapper中还定义了annotation的概念，用于用户自定义事件，如图二中的”foo”，用来辅助定位问题。<br>值得一提的是，zipkin中把cs,cr,ss,sr这几个事件称之为annotation，而对应dapper中的annotation在zipkin v1的数据模型中被称之为binaryAnnotation。</p>
+<h3 id="带内数据与带外数据"><a href="#带内数据与带外数据" class="headerlink" title="带内数据与带外数据"></a>带内数据与带外数据</h3><p>链路信息的还原依赖于两种数据，一种是各个节点产生的事件,如cs,ss,称之为<strong>带外数据</strong>，这些数据可以由节点独立生成，并且需要集中上报到存储端。<br>另一种数据是traceid,spanid,parentid，用来标识trace，span，以及span在一个trace中的位置。这些数据需要从链路的起点一直传递到终点，称之为<strong>带内数据</strong>。 通过带内数据的传递，可以将一个链路的所有过程串起来；通过带外数据，可以在存储端分析更多链路的细节。</p>
+<h3 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h3><p>由于每一个请求就会生成一个链路，为了减少性能消耗，避免存储资源的浪费，dapper并不会上报所有的span数据，而是使用采样的方式。通过采集端自适应地调整采样率，控制span上报的数量，可以在发现性能瓶颈的同时，有效减少性能损耗。采样率的概念在其他的追踪系统中也被广泛使用。在zipkin小节中将更具体阐述zipkin的采样机制。</p>
+<h3 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h3><p>链路中的span数据经过收集和上报后会集中存储在一个地方，Dapper使用了BigTable数据仓库，如下图所示，由于每种trace的span个数不尽相同，使得BigTable稀疏表格布局很适合这种场景，并且分散的span进行存储时按照traceid和spanid便可以插入到对应的行列中，使得收集程序可以无需做任何计算且无状态。同时链路的查询也十分方便，即取表中的一行。</p>
+<p><img src="https://s2.ax1x.com/2019/01/05/F7Pap8.png" alt="trace-store"></p>
+<h2 id="Zipkin"><a href="#Zipkin" class="headerlink" title="Zipkin"></a>Zipkin</h2><p>Zipkin是dapper的一种开源实现，也是业界做链路追踪系统的一个重要参考，其系统也可以即插即用。</p>
+<h3 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h3><p>Zipkin的架构中包含Reporter，Transport，Colletor，Storage，API，UI几个部分。</p>
+<p><img src="https://s2.ax1x.com/2019/01/05/F7PCSU.png" alt="zipkin-arc"></p>
+<p>其中<strong>Reporter</strong>集成在每个服务的代码中，负责Span的生成，带内数据(traceid等)的传递，带外数据(span)的上报，采样控制。<br><strong>Transport</strong>部分为带外数据上报的通道，zipkin支持http和kafka两种方式。<br><strong>Colletor</strong>负责接收带外数据，并插入到集中存储中。<br><strong>Storage</strong>为存储组件，适配底层的存储系统，zipkin提供默认的in-memory存储，并支持Mysql，Cassandra，ElasticSearch存储系统。<br><strong>API</strong>提供查询、分析和上报链路的接口。接口的定义见<a href="https://zipkin.io/zipkin-api/#/default/post_spans" target="_blank" rel="noopener">zipkin-api</a>。<br><strong>UI</strong>用于展示页面展示。</p>
+<p><img src="https://s2.ax1x.com/2019/01/05/F7PeFx.png" alt="zipkin-ui"></p>
+<p>Zipkin将Colletor/Storage/API/UI打包为jar包，可以直接下载运行。</p>
+<h3 id="数据模型"><a href="#数据模型" class="headerlink" title="数据模型"></a>数据模型</h3><p>这里的数据模型为<a href="7">zipkin v2</a>版本的数据模型。</p>
+<h4 id="Span"><a href="#Span" class="headerlink" title="Span"></a>Span</h4><p><code>trace_id</code>为16位或32位的hex字符串，<code>id</code>、<code>parent_id</code>为16位hex字符串， 如果没有父span，<code>parent_id</code>为空。<br><code>kind</code>标识服务节点的类型，有通信模型，cs和生产者消费者模型。<br><code>name</code>为span的名字，如rpc调用的名字。<br><code>timestamp</code>为span生成的时间戳，微秒。<br><code>duration</code>为span的持续时间，client端，即为cr-ss的时间。<br><code>local_endpoint</code>为本地节点信息，包含节点名称，ip与端口。<br><code>remote_endpoint</code>为远端节点信息。<br><code>annotations</code>为事件列表，每个事件用事件时间戳和名字表示。<br><code>tags</code>为用户自定义的kv信息，如{“user-id”:”lidawn”}。<br><code>debug</code>表示是否为调试，该选项会无视采样概率，使所有span上报。<br><code>shared</code>这个字段暂时没有太理解==。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">message Span &#123;</span><br><span class="line">  bytes trace_id = 1;</span><br><span class="line">  bytes parent_id = 2;</span><br><span class="line">  bytes id = 3;</span><br><span class="line">  enum Kind &#123;</span><br><span class="line">    SPAN_KIND_UNSPECIFIED = 0;</span><br><span class="line">    CLIENT = 1;</span><br><span class="line">    SERVER = 2;</span><br><span class="line">    PRODUCER = 3;</span><br><span class="line">    CONSUMER = 4;</span><br><span class="line">  &#125;</span><br><span class="line">  Kind kind = 4;</span><br><span class="line">  string name = 5;</span><br><span class="line">  fixed64 timestamp = 6;</span><br><span class="line">  uint64 duration = 7;</span><br><span class="line">  Endpoint local_endpoint = 8;</span><br><span class="line">  Endpoint remote_endpoint = 9;</span><br><span class="line">  repeated Annotation annotations = 10;</span><br><span class="line">  map&lt;string, string&gt; tags = 11;</span><br><span class="line">  bool debug = 12;</span><br><span class="line">  bool shared = 13;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message Endpoint &#123;</span><br><span class="line">  string service_name = 1;</span><br><span class="line">  bytes ipv4 = 2;</span><br><span class="line">  bytes ipv6 = 3;</span><br><span class="line">  int32 port = 4;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message Annotation &#123;</span><br><span class="line">  fixed64 timestamp = 1;</span><br><span class="line">  string value = 2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="带内数据与采样机制"><a href="#带内数据与采样机制" class="headerlink" title="带内数据与采样机制"></a>带内数据与采样机制</h4><p>Zipkin中对带内数据的传递有更加详细的描述。带内数据被称为<code>b3-propagation</code>，包含<code>TraceId,SpanId,ParentSpanId,Sampled</code>四个字段，每个server在生成span之后会得到TraceId,SpanId,ParentSpanId，穿递到下游server之后，下游server可以知道自己接下来要生成的span属于哪一条trace，并处在trace的哪一个位置。</p>
+<p>由于带内数据涉及到进程之间通信，所以一般是由框架来做带内数据传递，这样可以减少代码的侵入性。如果服务之间使用http通信，则可以使用<code>X-</code>开头的自定义http head来传递带内数据。或者如grpc框架，使用clientContext机制在调用之间传递自定义的字段。目前开源的zipkin客户端一般只支持http和grpc两种方式。</p>
+<p>Zipkin的采样字段Sampled有四种状态<code>Defer/Deny/Accept/Debug</code>，采样的一个重要前提是下游要尊重上游的采样决定，不能随意更改sampled字段。<br>Defer代表该span的采样状态还未决定，下游收到该状态时则可以对sampled字段重新赋值。<br>Deny代表该span不上报。<br>Accept代表span需要上报。<br>Debug一般用于开发环境，强制上报。</p>
+<p>Root_span的sampled字段由系统的采样率来决定。如采样率为50%，则一半的带内数据中sampled字段为accept，其他为deny。</p>
+<h3 id="数据埋点及上报过程"><a href="#数据埋点及上报过程" class="headerlink" title="数据埋点及上报过程"></a>数据埋点及上报过程</h3><p>根据zipkin的span定义，模拟一个简单的调用过程，分析数据埋点和上报过程。</p>
+<p><img src="https://s2.ax1x.com/2019/01/06/FHwvX6.png" alt="call"></p>
+<ol>
+<li>server-1发起对server-2的调用，生成一个root_span, 生成trace_id，id，parent_id为空，并记录kind为CLIENT，name，timestamp，local_endpoint(server-1)信息，并将trace_id，id，parent_id，sampled信息传递给server-2。</li>
+<li>server-2收到server-1的请求，并收到trace_id，id，parent_id，sampled信息，生成一个相同的span，并记录kind为SERVER，name，timestamp，local_endpoint(server-2)信息。</li>
+<li>server-2发起对server-3的调用，生成一个新的span，该span为root_span的子span。 并记录kind为CLIENT，name，timestamp，local_endpoint(server-2)信息，并将trace_id，id，parent_id，sampled信息传递给server-3。</li>
+<li>server-3收到server-2的请求，并收到trace_id，id，parent_id，sampled信息，生成一个相同的span，并记录kind为SERVER，name，timestamp，local_endpoint(server-3)信息。</li>
+<li>server-3回复server-2的调用，记录duration，并上报span。</li>
+<li>server-2收到server-3的回复，记录duration，并上报span。</li>
+<li>server-2回复server-1的调用，记录duration，并上报span。</li>
+<li>server-1收到server-2的回复，记录duration，并上报span。</li>
+</ol>
+<p>整个过程中上报4个临时的span，最终在zipkin中被合并和存储为两个span。</p>
+<h2 id="Open-Tracing"><a href="#Open-Tracing" class="headerlink" title="Open-Tracing"></a>Open-Tracing</h2><p>由于各种分布式追踪系统层出不穷，且有着相似的API语法，但各种语言的开发人员依然很难将他们各自的系统和特定的分布式追踪系统进行整合。在这种情况下，OpenTracing规范出现了。<br>OpenTracing通过提供平台无关、厂商无关的API，使得开发人员能够方便的添加（或更换）追踪系统的实现。OpenTracing通过定义的API，可实现将监控数据记录到一个可插拔的tracer上。</p>
+<p>Opentracing api的定义可以查看<a href="9">中文文档</a>, 其并没有具体的实现。对于现有的系统，如zipkin适配opentracing，则需要额外基于现有的client编写适配代码。</p>
+<p>以上。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li>Zipkin - <a href="https://zipkin.io" target="_blank" rel="noopener">https://zipkin.io</a></li>
+<li>Dapper - <a href="https://storage.googleapis.com/pub-tools-public-publication-data/pdf/36356.pdf" target="_blank" rel="noopener">https://storage.googleapis.com/pub-tools-public-publication-data/pdf/36356.pdf</a></li>
+<li>Jaeger - <a href="https://www.jaegertracing.io/" target="_blank" rel="noopener">https://www.jaegertracing.io/</a></li>
+<li>鹰眼 - <a href="https://cn.aliyun.com/aliware/news/monitoringsolution" target="_blank" rel="noopener">https://cn.aliyun.com/aliware/news/monitoringsolution</a></li>
+<li>Mtrace - <a href="https://tech.meituan.com/mt_mtrace.html" target="_blank" rel="noopener">https://tech.meituan.com/mt_mtrace.html</a></li>
+<li>Zipkin-b3-propagation - <a href="https://github.com/openzipkin/b3-propagation" target="_blank" rel="noopener">https://github.com/openzipkin/b3-propagation</a></li>
+<li>Zipkin-api - <a href="https://zipkin.io/zipkin-api/#/default/post_spans" target="_blank" rel="noopener">https://zipkin.io/zipkin-api/#/default/post_spans</a></li>
+<li>Zipkin-proto - <a href="https://github.com/openzipkin/zipkin-api/blob/master/zipkin.proto" target="_blank" rel="noopener">https://github.com/openzipkin/zipkin-api/blob/master/zipkin.proto</a></li>
+<li>OpenTracing - <a href="https://opentracing.io" target="_blank" rel="noopener">https://opentracing.io</a></li>
+<li>OpenTracing中文 - <a href="https://wu-sheng.gitbooks.io/opentracing-io/content/" target="_blank" rel="noopener">https://wu-sheng.gitbooks.io/opentracing-io/content/</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Open-Tracing/" rel="tag"># Open Tracing</a>
+          
+            <a href="/tags/Zipkin/" rel="tag"># Zipkin</a>
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/02/gcc-bug/" rel="next" title="排查GCC 4.4.X版本优化switch-enum的BUG">
+                <i class="fa fa-chevron-left"></i> 排查GCC 4.4.X版本优化switch-enum的BUG
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/12/consul-service-discovery/" rel="prev" title="Consul Service Discovery实践">
+                Consul Service Discovery实践 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">大栗子</p>
+              <p class="site-description motion-element" itemprop="description">IT,Life,逗比.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#起因"><span class="nav-number">1.</span> <span class="nav-text">起因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是链路追踪"><span class="nav-number">2.</span> <span class="nav-text">什么是链路追踪</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dapper"><span class="nav-number">3.</span> <span class="nav-text">Dapper</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Trace、Span、Annotations"><span class="nav-number">3.1.</span> <span class="nav-text">Trace、Span、Annotations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#带内数据与带外数据"><span class="nav-number">3.2.</span> <span class="nav-text">带内数据与带外数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#采样"><span class="nav-number">3.3.</span> <span class="nav-text">采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#存储"><span class="nav-number">3.4.</span> <span class="nav-text">存储</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Zipkin"><span class="nav-number">4.</span> <span class="nav-text">Zipkin</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#架构"><span class="nav-number">4.1.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据模型"><span class="nav-number">4.2.</span> <span class="nav-text">数据模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Span"><span class="nav-number">4.2.1.</span> <span class="nav-text">Span</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#带内数据与采样机制"><span class="nav-number">4.2.2.</span> <span class="nav-text">带内数据与采样机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据埋点及上报过程"><span class="nav-number">4.3.</span> <span class="nav-text">数据埋点及上报过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Open-Tracing"><span class="nav-number">5.</span> <span class="nav-text">Open-Tracing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">大栗子</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz',
+        appKey: 'mn4p5kSMuj83sTfEmFPEYL4d',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'20' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz", "mn4p5kSMuj83sTfEmFPEYL4d");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

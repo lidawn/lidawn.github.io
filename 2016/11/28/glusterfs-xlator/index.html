@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="I/O,分布式,GlusterFS,Make," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="GlusterFS 是一个开源的网络分布式文件系统，前一阵子看了一点GlusterFS(Gluster)的代码，修改了部分代码，具体是增加了一个定制的xlator，简单记录一下。">
+<meta name="keywords" content="I&#x2F;O,分布式,GlusterFS,Make">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为 GlusterFS 设计新的xlator (编译及调用过程分析)">
+<meta property="og:url" content="http://lidawn.github.io/2016/11/28//glusterfs-xlator//index.html">
+<meta property="og:site_name" content="大栗子菜市场">
+<meta property="og:description" content="GlusterFS 是一个开源的网络分布式文件系统，前一阵子看了一点GlusterFS(Gluster)的代码，修改了部分代码，具体是增加了一个定制的xlator，简单记录一下。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FiFHG4.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FiFbRJ.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FiFOMR.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FiFXs1.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FiFxZ6.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FikCJe.png">
+<meta property="og:image" content="https://dn-shimo-image.qbox.me/1rfsw40uBm404XMM.png">
+<meta property="og:image" content="https://dn-shimo-image.qbox.me/wGarju2jmeAhUaYu.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FikELt.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FikZeP.png">
+<meta property="og:image" content="https://dn-shimo-image.qbox.me/mMJSxABEotkvLYbA.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/Fikedf.png">
+<meta property="og:updated_time" content="2019-01-06T03:45:10.106Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="为 GlusterFS 设计新的xlator (编译及调用过程分析)">
+<meta name="twitter:description" content="GlusterFS 是一个开源的网络分布式文件系统，前一阵子看了一点GlusterFS(Gluster)的代码，修改了部分代码，具体是增加了一个定制的xlator，简单记录一下。">
+<meta name="twitter:image" content="https://s1.ax1x.com/2018/11/22/FiFHG4.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lidawn.github.io/2016/11/28//glusterfs-xlator//"/>
+
+
+
+
+
+  <title>为 GlusterFS 设计新的xlator (编译及调用过程分析) | 大栗子菜市场</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大栗子菜市场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lidawn.github.io/2016/11/28/glusterfs-xlator/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="大栗子">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大栗子菜市场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">为 GlusterFS 设计新的xlator (编译及调用过程分析)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-11-28T00:00:00+08:00">
+                2016-11-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/11/28/glusterfs-xlator/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2016/11/28/glusterfs-xlator/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2016/11/28/glusterfs-xlator/" class="leancloud_visitors" data-flag-title="为 GlusterFS 设计新的xlator (编译及调用过程分析)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong><a href="https://www.gluster.org/" target="_blank" rel="noopener">Gluster</a>FS</strong> 是一个开源的网络分布式文件系统，前一阵子看了一点GlusterFS(Gluster)的代码，修改了部分代码，具体是增加了一个定制的xlator，简单记录一下。</p>
+<a id="more"></a>
+<h2 id="Gluster与xlator"><a href="#Gluster与xlator" class="headerlink" title="Gluster与xlator"></a>Gluster与xlator</h2><p>随着计算机技术的发展，不管哪一个领域的数据都呈现出爆炸性增长的趋势，因此产生了大数据处理与存储技术。单机的存储基本不可能满足大量离线数据（文本）的存储需求了，于是在网络分布式文件系统越来越受到重视。开源的分布式文件系统非常多，<strong><a href="https://www.gluster.org/" target="_blank" rel="noopener">Gluster</a>FS</strong>，<strong><a href="http://lustre.org/" target="_blank" rel="noopener">Lustre</a></strong>，<strong><a href="http://ceph.com/" target="_blank" rel="noopener">Ceph</a></strong>，<strong><a href="https://hadoop.apache.org/docs/r1.0.4/cn/hdfs_design.html" target="_blank" rel="noopener">HDFS</a></strong>，<strong><a href="https://github.com/happyfish100/fastdfs" target="_blank" rel="noopener">FastDFS</a></strong>，关于这些文件系统的分类与区别，可以参考<strong><a href="https://turodj.gitbooks.io/those-things-about-architecture/content/cun_chu.html" target="_blank" rel="noopener">这里</a></strong>，我觉得从块，文件，对象的角度划分比较靠谱。我本是做高性能计算的存储方面研究的，阴差阳错地入了Gluster的坑，具体原因不表了。</p>
+<p>Gluster是基于FUSE的用户态文件系统，意味着编译安装Gluster不需要去牵涉内核，关于FUSE，其实Gluster做的比较粗暴，用一个死循环去读取<code>/dev/fuse</code>这个块设备，再丢给客户端或者网络，但是FUSE的原理还是值得去研究的，我也是一知半解。兼容POSIX标准，意味着Linux标准库的read，write等I/O函数不需要经过修改就可以在Gluster上运行。</p>
+<p>一个网络分布式文件系统的套路通常是，服务端有多台机子构成一个统一的名字空间，文件以某种分布方式存放在不同的服务器上。而客户端看到的却是一个整体，如一个目录，并且客户端可以被挂载在多个不同的节点，因此可以随时随地访问你的数据。每个文件系统为了实现这一套，都会有各种各样的概念，但本质都是一样的，例如Gluster里面有一些<a href="http://gluster.readthedocs.org/en/latest/Administrator%20Guide/glossary/" target="_blank" rel="noopener">基础的概念</a>, 其中brick是一个存储节点上的一个输出目录, volume是一系列的brick，代表一个功能子集，translator（xlator）是连接子volume的，xlator本身也是某一个volume的具体实现。 </p>
+<p>Gluster支持多种数据分布方式：</p>
+<ol>
+<li><p><strong>Distributed(默认分布方式)</strong><br> 一个文件分布在一个brick上，不同的文件可能分布在不同的brick上。没有容错。Distributed方式的分配粒度是文件。<br><img src="https://s1.ax1x.com/2018/11/22/FiFHG4.png" alt="Distributed-volume"></p>
+</li>
+<li><p><strong>Replicated</strong><br> 每一个文件都会在每个brick存一个copy，replica数目可以由配置文件指定。Replicated的分配粒度是文件。<br><img src="https://s1.ax1x.com/2018/11/22/FiFbRJ.png" alt="replicate-volume"></p>
+</li>
+<li><p><strong>Distributed Replicated volume</strong><br> 前两者的结合，brick的数量是replia的n倍，假如有N个brick，replica是2，则distribute数目是N/2，相邻的两个brick互为备份。先distribute，再replicate。<br><img src="https://s1.ax1x.com/2018/11/22/FiFOMR.png" alt="Distributed-Replicated-volume"></p>
+</li>
+<li><p><strong>Striped Volume</strong><br> 文件被分成固定大小的块，以<a href="http://lidawn.github.io/2015/04/30/parallel-io-basic/">RR</a>方式分布在不同的服务器上。Striped的分配粒度是文件块。<br><img src="https://s1.ax1x.com/2018/11/22/FiFXs1.png" alt="Striped-Volume"></p>
+</li>
+<li><p><strong>Distributed Striped volume</strong><br> 与striped 方式不同的是，file只在特定的brick上面stripe，相当于先distribute，再stripe。<br><img src="https://s1.ax1x.com/2018/11/22/FiFxZ6.png" alt="Distributed-Striped-volume"></p>
+</li>
+</ol>
+<p>xlator是Gluster设计的精髓所在，每一个功能都可以用一个xlator来实现，例如每种分布规则对应一个xlator，另外一些feature可以封装在一个xlator中，如文件加密。并且可以在配置文件中各种xlator混合，嵌套使用，每个xlator编译后会生成一个动态链接库，运行时按需加载。</p>
+<p>举一个例子，上面五种分布方式的第五种 Distributed Striped Volume，他的配置文件这样写：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">*************************************************************</span><br><span class="line"><span class="comment">### Add client feature and attach to remote subvolume</span></span><br><span class="line"></span><br><span class="line"><span class="comment">##  client 1</span></span><br><span class="line">volume client1</span><br><span class="line">  <span class="built_in">type</span> protocol/client</span><br><span class="line">  option transport-type tcp/client</span><br><span class="line">  option remote-host  10.0.0.1 <span class="comment"># IP address of the remote brick</span></span><br><span class="line">  option remote-port 6996 <span class="comment"># default server port is 6996</span></span><br><span class="line">  option remote-subvolume brick1 <span class="comment"># name of the remote volume</span></span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line"><span class="comment">## client 2</span></span><br><span class="line">volume client2</span><br><span class="line">  <span class="built_in">type</span> protocol/client</span><br><span class="line">  option transport-type tcp/client</span><br><span class="line">  option remote-host 10.0.0.2</span><br><span class="line">  option remote-port 6996</span><br><span class="line">  option remote-subvolume brick2</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line"><span class="comment">## client 3</span></span><br><span class="line">volume client3</span><br><span class="line">  <span class="built_in">type</span> protocol/client</span><br><span class="line">  option transport-type tcp/client</span><br><span class="line">  option remote-host 10.0.0.3</span><br><span class="line">  option remote-port 6996</span><br><span class="line">  option remote-subvolume brick3</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line"><span class="comment">## client 4</span></span><br><span class="line">volume client4</span><br><span class="line">  <span class="built_in">type</span> protocol/client</span><br><span class="line">  option transport-type tcp/client</span><br><span class="line">  option remote-host 10.0.0.4</span><br><span class="line">  option remote-port 6996</span><br><span class="line">  option remote-subvolume brick4</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line"><span class="comment">#stripe, subvolume is clients</span></span><br><span class="line">volume stripe1</span><br><span class="line">  <span class="built_in">type</span> cluster/stripe</span><br><span class="line">  subvolumes client1 client2</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume stripe2</span><br><span class="line">  <span class="built_in">type</span> cluster/stripe</span><br><span class="line">  subvolumes client3 client4</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line"><span class="comment">#distribute, subvolume is stripes</span></span><br><span class="line">volume dht</span><br><span class="line">  <span class="built_in">type</span> cluster/distribute</span><br><span class="line">  subvolumes stripe1 stripe2</span><br><span class="line">end-volume</span><br></pre></td></tr></table></figure>
+<p>配置文件是一种树形的xlator结构，树的根是fuse_xlator_t，在配置文件初始化的时候，由根向叶子深度优先初始化。写配置文件的顺序与Gluster读配置的顺序是相反的，例如：dht最先被读取。client端的配置文件的写法要比server端复杂，server端只需要指定哪个目录输出就足够了。</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/FikCJe.png" alt="xlator-tree"></p>
+<p>如图所示，左边是客户端的xlator嵌套关系，fuse初始化之后会初始化子卷 subvolume，即调用dht的初始化函数，依次完成初始化。同样，一个I/O请求被FUSE接受，会经过一些封装传递给dht，dht可能经过一些定位，传递给他的某一个subvolume，…一直请求由client xlator通过网络包发给对应的server。server端收到请求也同样是一样的嵌套处理，最终会把请求送到posix xlator，这个xlator里封装了最原始的系统调用，read，write等。这就是Gluster整个系统的执行流程。</p>
+<p><img src="https://dn-shimo-image.qbox.me/1rfsw40uBm404XMM.png" alt="xlator-type"></p>
+<p>上图是官方文档提供的所有类型的xlator，具体都可以在源代码<code>xlators/</code>目录里找到。</p>
+<h2 id="xlator中的调用-STACK-WIND-与回调-STACK-UNWIND"><a href="#xlator中的调用-STACK-WIND-与回调-STACK-UNWIND" class="headerlink" title="xlator中的调用(STACK_WIND)与回调(STACK_UNWIND)"></a>xlator中的调用(STACK_WIND)与回调(STACK_UNWIND)</h2><p>Gluster在不同层级的xlator之间的通信有点类似于递归，主要依赖于代码中的两个宏，分别是<code>STACK_WIND</code>和<code>STACK_UNWIND</code>。每一个xlator中的相关函数都有一对，如 write 函数有着对应的 write_cbk 函数，两个函数与两个宏定义配合使用。</p>
+<p><img src="https://dn-shimo-image.qbox.me/wGarju2jmeAhUaYu.png" alt="stack_wind_unwind"></p>
+<p>我们把xlator的关系简化成三层，FUSE，DHT，POSIX，关系如上图左边所示。假设系统从<code>/dev/fuse</code>中读到了一个write请求，系统将这个请求丢给FUSE xlator，在FUSE xlator中调用<code>fuse_write</code>，通过<code>STACK_WIND</code>将请求传递给他的subvolume，调用subvolume对应的write函数，即<code>dht_write</code>, <code>dht_write</code>同理通过<code>STACK_WIND</code>调用<code>posix_write</code>。在图中posix是最底层的xlator，因此<code>posix_write</code>将不会调用<code>STACK_WIND</code>，而是调用<code>STACK_UNWIND</code>将返回值或者结果返回给父volume，对应着调用父volume中的_cbk函数，即<code>dht_write_cbk</code>，该函数做完相应的处理后继续通过<code>STACK_UNWIND</code>返回到<code>fuse_write_cbk</code>中，这样一个write才算完成。</p>
+<h3 id="调用-STACK-WIND"><a href="#调用-STACK-WIND" class="headerlink" title="调用 (STACK_WIND)"></a>调用 (STACK_WIND)</h3><p>接着具体分析一下STACK_WIND是如何工作的。下面是<code>STACK\_WIND</code>的宏定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* make a call */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> STACK_WIND(frame, rfn, obj, fn, params ...)                        \</span></span><br><span class="line">        <span class="keyword">do</span> &#123;                                                                \</span><br><span class="line">                <span class="keyword">call_frame_t</span> *_new = <span class="literal">NULL</span>;                                \</span><br><span class="line">                <span class="keyword">xlator_t</span>     *old_THIS = <span class="literal">NULL</span>;                          \</span><br><span class="line">                                                                        \</span><br><span class="line">                _new = CALLOC (<span class="number">1</span>, <span class="keyword">sizeof</span> (<span class="keyword">call_frame_t</span>));                \</span><br><span class="line">                ERR_ABORT (_new);                                        \</span><br><span class="line">                typeof(fn##_cbk) tmp_cbk = rfn;                                \</span><br><span class="line">                _new-&gt;root = frame-&gt;root;                                \</span><br><span class="line">                _new-&gt;next = frame-&gt;root-&gt;frames.next;                        \</span><br><span class="line">                _new-&gt;prev = &amp;frame-&gt;root-&gt;frames;                        \</span><br><span class="line">                <span class="keyword">if</span> (frame-&gt;root-&gt;frames.next)                                \</span><br><span class="line">                        frame-&gt;root-&gt;frames.next-&gt;prev = _new;                \</span><br><span class="line">                frame-&gt;root-&gt;frames.next = _new;                        \</span><br><span class="line">                _new-&gt;<span class="keyword">this</span> = obj;                                        \</span><br><span class="line">                _new-&gt;ret = (<span class="keyword">ret_fn_t</span>) tmp_cbk;                                \</span><br><span class="line">                _new-&gt;parent = frame;                                        \</span><br><span class="line">                _new-&gt;cookie = _new;                                        \</span><br><span class="line">                LOCK_INIT (&amp;_new-&gt;lock);                                \</span><br><span class="line">                frame-&gt;ref_count++;                                        \</span><br><span class="line">                                                                        \</span><br><span class="line">                old_THIS = THIS;                                        \</span><br><span class="line">                THIS = obj;                                             \</span><br><span class="line">                fn (_new, obj, params);                                        \</span><br><span class="line">                THIS = old_THIS;                                        \</span><br><span class="line">        &#125; <span class="keyword">while</span> (<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>在dht xlator中，<code>dht_write</code> 函数里这样调用<code>STACK_WIND</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">STACK_WIND (frame, dht_writev_cbk,</span><br><span class="line">                    subvol, subvol-&gt;fops-&gt;writev,</span><br><span class="line">                    fd, <span class="built_in">vector</span>, count, off, iobref);</span><br></pre></td></tr></table></figure>
+<p>把参数代入到宏定义中，可以按照下面的代码理解：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span>-&gt;parent = frame;</span><br><span class="line"><span class="keyword">new</span>-&gt;<span class="keyword">this</span> = subvolume;</span><br><span class="line">typeof(fn##_cbk) tmp_cbk = dht_writev_cbk;</span><br><span class="line"><span class="keyword">new</span>-&gt;ret = (<span class="keyword">ret_fn_t</span>) tmp_cbk; </span><br><span class="line">fn = subvol-&gt;fops-&gt;writev;</span><br><span class="line">params = &#123;fd, <span class="built_in">vector</span>, count, off, iobref&#125;;</span><br><span class="line">obj = subvol;</span><br><span class="line"><span class="comment">//用subvolume-&gt;fop-&gt;writev </span></span><br><span class="line"><span class="comment">//参数为new，new为新的frame，  new的父节点设置为frame，</span></span><br><span class="line"><span class="comment">//obj 就是subvolume</span></span><br><span class="line">fn (_new, obj, params);</span><br></pre></td></tr></table></figure>
+<p>可以看到STACK_WIND主要做了三件微小的事，<strong>1</strong> 传递调用之间的上下文，代码中是frame 这个数据结构，<strong>2</strong> 记录当前函数的回调函数，一般是对应的cbk函数，也有特例，像dht xlator中逻辑比较复杂的lookup操作（关于Gluster的核心dht xlator的调用分析可以参考<a href="http://blog.csdn.net/liuhong1123/article/details/8118258" target="_blank" rel="noopener">这里</a>），<strong>3</strong> 调用子subvolume的对应函数，将操作向下传递。</p>
+<p>因此按照我们简化的xlator关系，即dht的subvolume是posix，那上面的<code>STACK_WIND</code>就调用了<code>posix_writev</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">posix_writev (<span class="keyword">call_frame_t</span> *frame, <span class="keyword">xlator_t</span> *<span class="keyword">this</span>,</span><br><span class="line">          <span class="keyword">fd_t</span> *fd,struct iovec *<span class="built_in">vector</span>, <span class="keyword">int32_t</span> count,</span><br><span class="line">          <span class="keyword">off_t</span> offset,struct iobref *iobref))</span><br></pre></td></tr></table></figure>
+<h3 id="回调-STACK-UNWIND"><a href="#回调-STACK-UNWIND" class="headerlink" title="回调 (STACK_UNWIND)"></a>回调 (STACK_UNWIND)</h3><p>接下来看一下STACK_UNWIND的工作原理。Gluster中有两种回调的宏，一个是<code>STACK_UNWIND</code>, 另一个是<code>STACK_UNWIND_STRICT</code>，两者的差别只是第一个参数，原理是一样的。通常xlator源码里面用的是<code>STACK_UNWIND_STRICT</code>，原因在宏定义的注释里写了，<code>STACK_UNWIND_STRICT</code>是类型安全的。下面是<code>STACK_UNWIND_STRICT</code>的宏定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* return from function in type-safe way */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> STACK_UNWIND_STRICT(op, frame, params ...)                      \</span></span><br><span class="line">        <span class="keyword">do</span> &#123;                                                                \</span><br><span class="line">                fop_#<span class="meta">#op##_cbk_t      fn = NULL;                        \</span></span><br><span class="line">                <span class="keyword">call_frame_t</span> *_parent = <span class="literal">NULL</span>;                           \</span><br><span class="line">                <span class="keyword">xlator_t</span>     *old_THIS = <span class="literal">NULL</span>;                          \</span><br><span class="line">                                                                        \</span><br><span class="line">                fn = (fop_##op##<span class="keyword">_cbk_t</span> )frame-&gt;ret;                     \</span><br><span class="line">                _parent = frame-&gt;parent;                                \</span><br><span class="line">                _parent-&gt;ref_count--;                                        \</span><br><span class="line">                old_THIS = THIS;                                        \</span><br><span class="line">                THIS = _parent-&gt;<span class="keyword">this</span>;                                   \</span><br><span class="line">                frame-&gt;complete = _gf_true;                             \</span><br><span class="line">                fn (_parent, frame-&gt;cookie, _parent-&gt;<span class="keyword">this</span>, params);        \</span><br><span class="line">                THIS = old_THIS;                                        \</span><br><span class="line">        &#125; <span class="keyword">while</span> (<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>前面提到如果你的xlator是最底层的（如客户端的client xlator，服务端的posix xlator），那么这个xlator里不应该存在 xxx_cbk 函数，而是在操作返回之前调用<code>STACK_UNWIND</code>或者<code>STACK_UNWIND_STRICK</code>。posix xlator里面用的是<code>STACK_UNWIND_STRICT</code> 向父volume返回。 <code>STACK_UNWIND_STRICT</code>的第一句是将第一个参数连接成cbk函数，以下是posix的调用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">STACK_UNWIND_STRICT (writev, frame, op_ret, op_errno, &amp;preop, &amp;postop);</span><br></pre></td></tr></table></figure>
+<p>把参数代入到宏定义中，可以按照下面的代码理解：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这里的frame就是STACK_WIND里的obj</span></span><br><span class="line"><span class="comment">//因此 fn = dht_writev_cbk</span></span><br><span class="line">fn = (<span class="keyword">fop_writev_cbk_t</span>)frame-&gt;ret;</span><br><span class="line"><span class="comment">//parent 就是dht的frame  </span></span><br><span class="line">_parent = frame-&gt;parent;</span><br><span class="line"><span class="comment">//因此这里调用的是</span></span><br><span class="line"><span class="comment">//dht_writev_cbk(dht_frame,posix_frame,dht,params);</span></span><br><span class="line"><span class="comment">//实际第二个cokkie参数在dht_write_cbk会被忽略</span></span><br><span class="line">fn (_parent, frame-&gt;cookie, _parent-&gt;<span class="keyword">this</span>, params);</span><br></pre></td></tr></table></figure>
+<p>可以看到替换后，首先将上下文换成正确的上下文，即父volume的frame，然后代码的最后一句实际是调用了父volume的 cbk 方法，即<code>dht_write_cbk</code>，在<code>dht_write_cbk</code>里会继续调用<code>STACK_UNWIND_STRICT</code>， 这样就会将结果返回到根xlator。</p>
+<h2 id="工程编译，configure与make"><a href="#工程编译，configure与make" class="headerlink" title="工程编译，configure与make"></a>工程编译，configure与make</h2><p>为Gluster新增xlator实际是改变了源码的结构，因此要想xlator正确工作，需要了解一下自动编译的知识。首先看一下Gluster的代码结构：</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/FikELt.png" alt="code-tree"></p>
+<p>Gluster里提供了一个默认的xlator模板叫做defaults，在<code>libglusterfs/src/defaults.c</code>里，里面定义了一个文件系统基本操作，包括cbk方法，但是他不做任何操作，方法里面只有基本的<code>STACK_WIND</code>和<code>STACK_UNWIND</code>调用。假设我们要在cluster中加一个新的分布规则叫<code>dadada</code>，那应该在对应的目录下新建自己的目录和源码，如图：</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/FikZeP.png" alt="dadada"></p>
+<p>然后需要将新增的xlator加到编译选项中。为此我特意了解了一下C语言大型工程的编译套路，仅仅也是能够修改的水平。首先基础的编译方法是用make命令执行Makefile文件，GNU提供了一系列的工具帮助我们自动生成Makefile文件。下面是生成Makefile的操作过程（<a href="https://www.ibm.com/developerworks/cn/linux/l-makefile/" target="_blank" rel="noopener">原图</a>）：</p>
+<p><img src="https://dn-shimo-image.qbox.me/mMJSxABEotkvLYbA.png" alt="configure"></p>
+<p>首先通过autoscan根据源代码生成对应的configure.ac(或者configure.in)文件，不过通常这一步不需要我们做，一般开源项目里都提供了configure.ac文件。然后aclocal命令根据configure.ac生成aclocal.m4，再运行autoconf命令生成configure文件，然后需要运行<code>automake -a</code>命令生成makefile.in，但这三个步骤Gluster里面有一个<code>autogen.sh</code>的脚本帮我们做了。生成的configure文件是可以执行的，必要的时候修改一下文件权限。执行configure文件，该文件会和makefile.in一起生成所需要的Makefile文件。</p>
+<p>因此可以看到，在编译中通常我们只需要提供<strong>configure.ac(configure.in)</strong>和<strong>Makefile.am</strong>两种文件，其他都是通过工具自动生成的。所以我们要为我们的<code>dadada</code>做以下修改：</p>
+<p><strong>1</strong> 修改configure.ac， 将<code>cluster/dadada</code> 和 <code>cluster/dadada/src</code> 仿照其他的结构添加到configure.ac中。当然要修改的不只下图中的一处。</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/Fikedf.png" alt="configure"></p>
+<p><strong>2</strong> 修改Makefile.am，包括<code>cluster/Makefile.am</code>,<code>cluster/dadada/Makefile.am</code>, <code>cluster/dadada/src/Makefile.am</code>，基本就是改一些名字。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cluster/Makefile.am</span></span><br><span class="line">SUBDIRS = stripe afr dht ec dadada</span><br><span class="line"></span><br><span class="line">CLEANFILES = </span><br><span class="line"></span><br><span class="line"><span class="comment"># cluster/dadada/Makefile.am</span></span><br><span class="line">SUBDIRS = src</span><br><span class="line"></span><br><span class="line"><span class="comment"># cluster/dadada/src/Makefile.am  根据代码的结构修改</span></span><br><span class="line"></span><br><span class="line">xlator_LTLIBRARIES = dadada.la</span><br><span class="line">xlatordir = $(libdir)/glusterfs/$(PACKAGE_VERSION)/xlator/cluster</span><br><span class="line"></span><br><span class="line">dadada_la_SOURCES = dadada.c </span><br><span class="line"></span><br><span class="line">dadada_la_LDFLAGS = -module -avoidversion</span><br><span class="line">dadada_la_LIBADD = $(top_builddir)/libglusterfs/src/libglusterfs.la</span><br><span class="line"></span><br><span class="line">noinst_HEADERS = dadada.h</span><br><span class="line"></span><br><span class="line">AM_CFLAGS = -fPIC -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -Wall -fno-strict-aliasing -D$(GF_HOST_OS) \</span><br><span class="line">	-I$(top_srcdir)/liblwfs/src $(GF_CFLAGS) -shared -nostartfiles</span><br><span class="line"></span><br><span class="line">CLEANFILES = </span><br><span class="line"></span><br><span class="line">uninstall-local:</span><br><span class="line">	rm -f $(DESTDIR)$(xlatordir)/dadada.so</span><br></pre></td></tr></table></figure>
+<p><strong>3</strong> 运行autogen.sh，该脚本是用aclocal和autoconf生成configure文件，以及用automake生成Makefile.in<br><strong>4</strong> 运行configure, configure是用Makefile.in 生成Makefile<br><strong>5</strong> make &amp;&amp; make install</p>
+<h2 id="配置文件以及其他"><a href="#配置文件以及其他" class="headerlink" title="配置文件以及其他"></a>配置文件以及其他</h2><p>在完成编译之后便可以自己写配置文件进行测试了，一个示例的配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">##  client 1</span></span><br><span class="line">volume client1</span><br><span class="line">  <span class="built_in">type</span> protocol/client</span><br><span class="line">  option transport-type tcp/client</span><br><span class="line">  option remote-host  10.0.0.1 <span class="comment"># IP address of the remote brick</span></span><br><span class="line">  option remote-port 6996 <span class="comment"># default server port is 6996</span></span><br><span class="line">  option remote-subvolume brick1 <span class="comment"># name of the remote volume</span></span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line"><span class="comment">## client 2</span></span><br><span class="line">volume client2</span><br><span class="line">  <span class="built_in">type</span> protocol/client</span><br><span class="line">  option transport-type tcp/client</span><br><span class="line">  option remote-host 10.0.0.2</span><br><span class="line">  option remote-port 6996</span><br><span class="line">  option remote-subvolume brick2</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line"><span class="comment">#dadada, subvolume is clients</span></span><br><span class="line">volume dadada</span><br><span class="line">  <span class="built_in">type</span> cluster/dadada</span><br><span class="line">  subvolumes client1 client2</span><br><span class="line">end-volume</span><br></pre></td></tr></table></figure>
+<p>以上就是关于增加xlator所能想起来的基础知识，当然写一个xlator是非常困难的，需要理解和研究的东西的太多。有一个建议就是涉及逻辑的操作最好在cbk函数里面做处理，嵌套调用写在 STACK_UNWIND 前面。另外Gluster在高性能领域用的比较少，所有的文件系统都是有利有弊的，例如Gluster的一大特色就是没有集中的元数据服务器，文件的定位是根据文件名计算hash值来做的，因此Gluster没有分布式文件系统中常见的元数据瓶颈问题，但是在没有指定文件名时候做查询（ls），Gluster性能就不会很好，因为要全盘扫描，关于Gluster性能的探讨，推荐这个系列的<a href="http://blog.csdn.net/liuaigui/article/details/6284551" target="_blank" rel="noopener">博客</a>。关于Gluster开发过程的调试方法，可以参考<a href="http://pl.atyp.us/hekafs.org/index.php/2011/11/" target="_blank" rel="noopener">这里</a>。</p>
+<p>以上。</p>
+<p><strong>参考</strong><br><a href="https://www.gluster.org/" target="_blank" rel="noopener">https://www.gluster.org/</a><br><a href="http://lustre.org/" target="_blank" rel="noopener">http://lustre.org/</a><br><a href="http://ceph.com/" target="_blank" rel="noopener">http://ceph.com/</a><br><a href="https://hadoop.apache.org/docs/r1.0.4/cn/hdfs_design.html" target="_blank" rel="noopener">https://hadoop.apache.org/docs/r1.0.4/cn/hdfs_design.html</a><br><a href="https://github.com/happyfish100/fastdfs" target="_blank" rel="noopener">https://github.com/happyfish100/fastdfs</a><br><a href="https://turodj.gitbooks.io/those-things-about-architecture/content/cun_chu.html" target="_blank" rel="noopener">https://turodj.gitbooks.io/those-things-about-architecture/content/cun_chu.html</a><br><a href="http://gluster.readthedocs.org/en/latest/Administrator%20Guide/glossary/" target="_blank" rel="noopener">http://gluster.readthedocs.org/en/latest/Administrator%20Guide/glossary/</a><br><a href="http://lidawn.github.io/2015/04/30/parallel-io-basic/">http://lidawn.github.io/2015/04/30/parallel-io-basic/</a><br><a href="http://blog.csdn.net/liuhong1123/article/details/8118258" target="_blank" rel="noopener">http://blog.csdn.net/liuhong1123/article/details/8118258</a><br><a href="https://www.ibm.com/developerworks/cn/linux/l-makefile/" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/linux/l-makefile/</a><br><a href="http://blog.csdn.net/liuaigui/article/details/6284551" target="_blank" rel="noopener">http://blog.csdn.net/liuaigui/article/details/6284551</a><br><a href="http://pl.atyp.us/hekafs.org/index.php/2011/11/" target="_blank" rel="noopener">http://pl.atyp.us/hekafs.org/index.php/2011/11/</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/I-O/" rel="tag"># I/O</a>
+          
+            <a href="/tags/分布式/" rel="tag"># 分布式</a>
+          
+            <a href="/tags/GlusterFS/" rel="tag"># GlusterFS</a>
+          
+            <a href="/tags/Make/" rel="tag"># Make</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/06/leetcode-iterator/" rel="next" title="水题踩坑之迭代器">
+                <i class="fa fa-chevron-left"></i> 水题踩坑之迭代器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/25/samba-file-share/" rel="prev" title="使用samba做windows与linux的文件共享">
+                使用samba做windows与linux的文件共享 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">大栗子</p>
+              <p class="site-description motion-element" itemprop="description">IT,Life,逗比.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Gluster与xlator"><span class="nav-number">1.</span> <span class="nav-text">Gluster与xlator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#xlator中的调用-STACK-WIND-与回调-STACK-UNWIND"><span class="nav-number">2.</span> <span class="nav-text">xlator中的调用(STACK_WIND)与回调(STACK_UNWIND)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#调用-STACK-WIND"><span class="nav-number">2.1.</span> <span class="nav-text">调用 (STACK_WIND)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#回调-STACK-UNWIND"><span class="nav-number">2.2.</span> <span class="nav-text">回调 (STACK_UNWIND)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工程编译，configure与make"><span class="nav-number">3.</span> <span class="nav-text">工程编译，configure与make</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置文件以及其他"><span class="nav-number">4.</span> <span class="nav-text">配置文件以及其他</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">大栗子</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz',
+        appKey: 'mn4p5kSMuj83sTfEmFPEYL4d',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'20' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz", "mn4p5kSMuj83sTfEmFPEYL4d");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

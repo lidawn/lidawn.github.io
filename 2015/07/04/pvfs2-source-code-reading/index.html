@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="I/O,Parallel-I/O,PVFS," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="1、俯瞰先了解PVFS2的总体设计。">
+<meta name="keywords" content="I&#x2F;O,Parallel-I&#x2F;O,PVFS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PVFS2.8.2源代码阅读笔记(still working)">
+<meta property="og:url" content="http://lidawn.github.io/2015/07/04//pvfs2-source-code-reading//index.html">
+<meta property="og:site_name" content="大栗子菜市场">
+<meta property="og:description" content="1、俯瞰先了解PVFS2的总体设计。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/Fikyex.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/Fik6w6.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FikcTK.jpg">
+<meta property="og:updated_time" content="2019-01-06T03:26:53.140Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PVFS2.8.2源代码阅读笔记(still working)">
+<meta name="twitter:description" content="1、俯瞰先了解PVFS2的总体设计。">
+<meta name="twitter:image" content="https://s1.ax1x.com/2018/11/22/Fikyex.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lidawn.github.io/2015/07/04//pvfs2-source-code-reading//"/>
+
+
+
+
+
+  <title>PVFS2.8.2源代码阅读笔记(still working) | 大栗子菜市场</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大栗子菜市场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lidawn.github.io/2015/07/04/pvfs2-source-code-reading/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="大栗子">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大栗子菜市场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PVFS2.8.2源代码阅读笔记(still working)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-07-04T00:00:00+08:00">
+                2015-07-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/07/04/pvfs2-source-code-reading/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2015/07/04/pvfs2-source-code-reading/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2015/07/04/pvfs2-source-code-reading/" class="leancloud_visitors" data-flag-title="PVFS2.8.2源代码阅读笔记(still working)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1、俯瞰"><a href="#1、俯瞰" class="headerlink" title="1、俯瞰"></a>1、俯瞰</h2><p>先了解PVFS2的总体设计。</p>
+<a id="more"></a>
+<h3 id="1-1-主要术语介绍"><a href="#1-1-主要术语介绍" class="headerlink" title="1.1 主要术语介绍"></a>1.1 主要术语介绍</h3><ul>
+<li><strong>distributions</strong> 数据分布，即逻辑文件与物理文件之间的映射。</li>
+<li><strong>job</strong> 一个PVFS操作操作包含多个步骤，每个步骤称为一个job。</li>
+<li><strong>BMI</strong> (Buffered Message Interface) 客户端与服务端通讯模块。</li>
+<li><strong>flows</strong> 数据流，描述数据从客户端到服务端的过程，该过程不涉及元数据操作。<ul>
+<li><strong>flow interface</strong> 用来设置flow的接口。</li>
+<li><strong>flow protocol</strong> 两个终端通讯协议。</li>
+<li><strong>flow endpoint</strong> 源或者目的地。</li>
+<li><strong>flow descriptor</strong> flow的数据结构。</li>
+</ul>
+</li>
+<li><strong>trove</strong> 数据存储模块。</li>
+<li><strong>vtags</strong> 数据流的版本信息，用于控制一致性。</li>
+<li><strong>instance tag</strong> 用于保证数据一致性。</li>
+<li><strong>gossip</strong> log用。</li>
+</ul>
+<h3 id="1-2-BMI-设计"><a href="#1-2-BMI-设计" class="headerlink" title="1.2 BMI 设计"></a>1.2 BMI 设计</h3><p>BMI模块用于客户端与服务端通信，提供消息排序，flow控制功能。所有BMI通信都是非阻塞的。</p>
+<h3 id="1-3-状态机"><a href="#1-3-状态机" class="headerlink" title="1.3 状态机"></a>1.3 状态机</h3><p>client和sever都用状态机来控制执行状态。</p>
+<h3 id="1-4-PVFS-request"><a href="#1-4-PVFS-request" class="headerlink" title="1.4 PVFS request"></a>1.4 PVFS request</h3><p><code>typedef struct PINT_Request PVFS_Request</code>;可以表示MPI_Datatype能表示的任何数据类型。</p>
+<p><code>typedef struct PINT_Request_state PVFS_Request_state</code>;表示一个request的处理进度。</p>
+<p><code>typedef struct PINT_reqstack PVFS_reqstack</code>，requeststate一起表示状态。</p>
+<p><code>PINT_Request_file_data</code></p>
+<p><code>PINT_Process_request</code></p>
+<p>PVFS_Request的定义</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">PINT_Request</span> &#123;</span></span><br><span class="line">	<span class="comment">//与上一个request的距离</span></span><br><span class="line">	PVFS_offset  offset;        <span class="comment">/* offset from start of last set of elements */</span></span><br><span class="line">	<span class="comment">//一个block是指一段相同连续数据的集合，一个block里有多个ereq</span></span><br><span class="line">	<span class="keyword">int32_t</span>      num_ereqs;     <span class="comment">/* number of ereqs in a block */</span></span><br><span class="line">	<span class="keyword">int32_t</span>      num_blocks;    <span class="comment">/* number of blocks */</span></span><br><span class="line">	<span class="comment">//block之间的距离</span></span><br><span class="line">	PVFS_size    stride;        <span class="comment">/* stride between blocks in bytes */</span></span><br><span class="line">	PVFS_offset  ub;            <span class="comment">/* upper bound of the type in bytes */</span></span><br><span class="line">	PVFS_offset  lb;            <span class="comment">/* lower bound of the type in bytes */</span></span><br><span class="line">	PVFS_size    aggregate_size; <span class="comment">/* amount of aggregate data in bytes */</span></span><br><span class="line">	<span class="comment">//chunk</span></span><br><span class="line">	<span class="keyword">int32_t</span>      num_contig_chunks; <span class="comment">/* number of contiguous data chunks */</span></span><br><span class="line">	<span class="keyword">int32_t</span>      depth;    	    <span class="comment">/* number of levels of nesting */</span></span><br><span class="line">	<span class="keyword">int32_t</span>      num_nested_req;<span class="comment">/* number of requests nested under this one */</span></span><br><span class="line">	<span class="keyword">int32_t</span>      committed;     <span class="comment">/* indicates if request has been commited */</span></span><br><span class="line">	<span class="keyword">int32_t</span>      refcount;      <span class="comment">/* number of references to this request struct */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_Request</span> *<span class="title">ereq</span>;</span>  <span class="comment">/* element type */</span></span><br><span class="line">	<span class="comment">//用于指定连续不同类型的block组</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_Request</span> *<span class="title">sreq</span>;</span>  <span class="comment">/* sequence type */</span></span><br><span class="line">&#125; PINT_Request;</span><br></pre></td></tr></table></figure>
+<p>根据下面两张图来理解<code>PINT_Request</code>。</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/Fikyex.png" alt="request实例1"></p>
+<p>上图中的A，可以表示为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">PTYPE:</span><br><span class="line">offset = OFFSET</span><br><span class="line">num_ereqs = SIZE</span><br><span class="line">stride = <span class="number">1</span></span><br><span class="line">num_blocks = <span class="number">1</span></span><br><span class="line">ub = SIZE</span><br><span class="line">lb = <span class="number">0</span></span><br><span class="line">aggregate_size = SIZE</span><br><span class="line">depth = <span class="number">1</span></span><br><span class="line">num_contig_chunks = <span class="number">1</span></span><br><span class="line">etype = PVFS_Request_byte</span><br><span class="line">stype = <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<p>也就是说，A中的request只有一个block，一个block是指一段相同连续数据的集合，A中的block就是个SIZE个PVFS_Requst_byte的集合，PVFS_Requst_byte大小为1。</p>
+<p>上图的B，可以表示为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">PTYPE:</span><br><span class="line">offset = OFFSET</span><br><span class="line">num_ereqs = COUNT</span><br><span class="line">stride = <span class="number">1</span></span><br><span class="line">num_blocks = <span class="number">1</span></span><br><span class="line">ub = COUNT * <span class="number">4</span></span><br><span class="line">lb = <span class="number">0</span></span><br><span class="line">aggregate_size = COUNT * <span class="number">4</span></span><br><span class="line">depth = <span class="number">1</span></span><br><span class="line">num_contig_chunks = <span class="number">1</span></span><br><span class="line">etype = PVFS_Request_int</span><br><span class="line">stype = <span class="literal">NULL</span></span><br><span class="line"></span><br><span class="line">PVFS_Request_int:</span><br><span class="line">offset = <span class="number">0</span></span><br><span class="line">num_ereqs = <span class="number">4</span></span><br><span class="line">stride = <span class="number">1</span></span><br><span class="line">num_blocks = <span class="number">1</span></span><br><span class="line">ub = <span class="number">4</span></span><br><span class="line">lb = <span class="number">0</span></span><br><span class="line">aggregate_size = <span class="number">4</span></span><br><span class="line">depth = <span class="number">0</span></span><br><span class="line">num_contig_chunks = <span class="number">1</span></span><br><span class="line">etype = <span class="literal">NULL</span></span><br><span class="line">stype = <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<p>B中的etype是PVFS_Request_int,大小为4，pvfs中的预定义类型的etype都是null。B也只有一个block，block里有COUNT个PVFS_Request_int。depth = etype.depth+1。</p>
+<p>上图的C，可以表示为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">PTYPE:</span><br><span class="line">offset = OFFSET</span><br><span class="line">num_ereqs = ELEMENTS</span><br><span class="line">stride = STRIDE</span><br><span class="line">num_blocks = COUNT</span><br><span class="line">ub = ((COUNT - <span class="number">1</span>) * STRIDE) + (ELEMENTS * ESIZE)</span><br><span class="line">lb = <span class="number">0</span></span><br><span class="line">aggregate_size = COUNT * ELEMENTS * ESIZE</span><br><span class="line">depth = <span class="number">1</span></span><br><span class="line">num_contig_chunks = COUNT</span><br><span class="line">etype = ETYPE</span><br><span class="line">stype = <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<p>C有COUNT个block，block之间不是连续的，block之间的间距为STRIDE，STRIDE是两个block其实偏移地址的距离。一个block里面有ELEMENTS个ETYPE，每个ETYPE大小为ESIZE。ub表示数据上界的相对偏移地址，lb为下界，第一块数据lb=0。</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/Fik6w6.png" alt="request实例2"></p>
+<p>上图中的D表示为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">FIRST-PTYPE:</span><br><span class="line">offset = OFFSET</span><br><span class="line">num_ereqs = <span class="number">4</span></span><br><span class="line">stride = <span class="number">1</span></span><br><span class="line">num_blocks = <span class="number">1</span></span><br><span class="line">ub = <span class="number">764</span></span><br><span class="line">lb = <span class="number">0</span></span><br><span class="line">aggregate_size = <span class="number">380</span></span><br><span class="line">depth = <span class="number">1</span></span><br><span class="line">num_contig_chunks = <span class="number">17</span></span><br><span class="line">etype = PVFS_Request_float</span><br><span class="line">stype = NEXT-PTYPE</span><br><span class="line"></span><br><span class="line">NEXT-PTYPE:</span><br><span class="line">offset = OFFSET + <span class="number">40</span></span><br><span class="line">num_ereqs = <span class="number">6</span></span><br><span class="line">stride = <span class="number">48</span></span><br><span class="line">num_blocks = <span class="number">15</span></span><br><span class="line">ub = <span class="number">764</span></span><br><span class="line">lb = <span class="number">40</span></span><br><span class="line">aggregate_size = <span class="number">364</span></span><br><span class="line">depth = <span class="number">1</span></span><br><span class="line">num_contig_chunks = <span class="number">16</span></span><br><span class="line">etype = PVFS_Request_float</span><br><span class="line">stype = LAST-PTYPE</span><br><span class="line"></span><br><span class="line">LAST-PTYPE:</span><br><span class="line">offset = OFFSET + <span class="number">760</span></span><br><span class="line">num_ereqs = <span class="number">1</span></span><br><span class="line">stride = <span class="number">1</span></span><br><span class="line">num_blocks = <span class="number">1</span></span><br><span class="line">ub = <span class="number">764</span></span><br><span class="line">lb = <span class="number">760</span></span><br><span class="line">aggregate_size = <span class="number">4</span></span><br><span class="line">depth = <span class="number">1</span></span><br><span class="line">num_contig_chunks = <span class="number">1</span></span><br><span class="line">etype = PVFS_Request_float</span><br><span class="line">stype = <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<p>将request按照block类型分组，总共3组，每一组用stype表示。值得注意的是参数ub,lb,aggregate_size。aggregate_size = ub - lb 。 ub始终为request的最上界，lb为当前组的下界。</p>
+<p>上图中的E表示为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">OUTER-PTYPE:</span><br><span class="line">offset = OFFSET</span><br><span class="line">num_ereqs = <span class="number">2</span></span><br><span class="line">stride = <span class="number">768</span></span><br><span class="line">num_blocks = <span class="number">4</span></span><br><span class="line">ub = <span class="number">3264</span></span><br><span class="line">lb = <span class="number">0</span></span><br><span class="line">aggregate_size = <span class="number">384</span></span><br><span class="line">depth = <span class="number">2</span></span><br><span class="line">num_contig_chunks = <span class="number">16</span></span><br><span class="line">etype = INNER-PTYPE</span><br><span class="line">stype = <span class="literal">NULL</span></span><br><span class="line"></span><br><span class="line">INNER-PTYPE:</span><br><span class="line">offset = <span class="number">0</span></span><br><span class="line">num_ereqs = <span class="number">6</span></span><br><span class="line">stride = <span class="number">48</span></span><br><span class="line">num_blocks = <span class="number">2</span></span><br><span class="line">ub = <span class="number">96</span></span><br><span class="line">lb = <span class="number">0</span></span><br><span class="line">aggregate_size = <span class="number">48</span></span><br><span class="line">depth = <span class="number">1</span></span><br><span class="line">num_contig_chunks = <span class="number">2</span></span><br><span class="line">etype = PVFS_Request_int</span><br><span class="line">stype = <span class="literal">NULL</span></span><br></pre></td></tr></table></figure>
+<p>将request的划分方式又有不同，这次是从外到内，外面的是一组相同的block，里面也是一组相同的block，depth为2。</p>
+<p>其他参数暂时不考虑。</p>
+<h2 id="2、MPI—IO-ADIO"><a href="#2、MPI—IO-ADIO" class="headerlink" title="2、MPI—IO ADIO"></a>2、MPI—IO ADIO</h2><p>PVFS2有三种接口，其中一种是MPI-IO，被集成在ROMIO的ADIO模块中。</p>
+<p>两种函数common和filesystem。common是所有操作的集合，通常strided 操作使用的是common里的方法，每个filesystem子文件夹里都定义自己的io函数，在<code>ADIO_FNS_Operations</code>结构里。<br><code>ADIO_FileSysType_prefix</code>  检测文件前缀<br><code>ADIO_ResolveFileType</code> 决定op指向哪个<code>ADIO_FNS_Operations</code>结构，如前缀为“pvfs2：”的指向<code>ADIO_PVFS2_operations</code>。<code>ADIO_PVFS2_operations</code>中的函数指针列表。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ADIOI_Fns_struct</span> <span class="title">ADIO_PVFS2_operations</span> = &#123;</span></span><br><span class="line">    ADIOI_PVFS2_Open, <span class="comment">/* Open */</span></span><br><span class="line">    ADIOI_SCALEABLE_OpenColl, <span class="comment">/* OpenColl */</span></span><br><span class="line">    ADIOI_PVFS2_ReadContig, <span class="comment">/* ReadContig */</span></span><br><span class="line">    ADIOI_PVFS2_WriteContig, <span class="comment">/* WriteContig */</span></span><br><span class="line">    ADIOI_GEN_ReadStridedColl, <span class="comment">/* ReadStridedColl */</span></span><br><span class="line">    ADIOI_GEN_WriteStridedColl, <span class="comment">/* WriteStridedColl */</span></span><br><span class="line">    ADIOI_GEN_SeekIndividual, <span class="comment">/* SeekIndividual */</span></span><br><span class="line">    ADIOI_PVFS2_Fcntl, <span class="comment">/* Fcntl */</span></span><br><span class="line">    ADIOI_PVFS2_SetInfo, <span class="comment">/* SetInfo */</span></span><br><span class="line">    ADIOI_PVFS2_ReadStrided, <span class="comment">/* ReadStrided */</span></span><br><span class="line">    ADIOI_PVFS2_WriteStrided, <span class="comment">/* WriteStrided */</span></span><br><span class="line">    ADIOI_PVFS2_Close, <span class="comment">/* Close */</span></span><br><span class="line">    ADIOI_PVFS2_IReadContig, <span class="comment">/* IreadContig */</span></span><br><span class="line">    ADIOI_PVFS2_IWriteContig, <span class="comment">/* IwriteContig */</span></span><br><span class="line">    ADIOI_FAKE_IODone, <span class="comment">/* ReadDone */</span></span><br><span class="line">    ADIOI_FAKE_IODone, <span class="comment">/* WriteDone */</span></span><br><span class="line">    ADIOI_FAKE_IOComplete, <span class="comment">/* ReadComplete */</span></span><br><span class="line">    ADIOI_FAKE_IOComplete, <span class="comment">/* WriteComplete */</span></span><br><span class="line">    ADIOI_FAKE_IreadStrided, <span class="comment">/* IreadStrided */</span></span><br><span class="line">    ADIOI_FAKE_IwriteStrided, <span class="comment">/* IwriteStrided */</span></span><br><span class="line">    ADIOI_PVFS2_Flush, <span class="comment">/* Flush */</span></span><br><span class="line">    ADIOI_PVFS2_Resize, <span class="comment">/* Resize */</span></span><br><span class="line">    ADIOI_PVFS2_Delete, <span class="comment">/* Delete */</span></span><br><span class="line">    ADIOI_PVFS2_Feature, </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>adio-pvfs2 写连续型数据，首先调用 <code>PVFS_Request_contiguous</code>，初始化两个pvfs-request（file,memory），<code>PVFS_Request_contiguous</code>调用关系如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	len：数据总大小</span></span><br><span class="line"><span class="comment">	PVFS_BYTE：一种PVFS的请求（extern PVFS_Request PVFS_BYTE;）</span></span><br><span class="line"><span class="comment">	static struct PINT_Request PINT_BYTE = &#123; 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, -1, NULL, NULL &#125;;</span></span><br><span class="line"><span class="comment">	mem_req：</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line">ret = PVFS_Request_contiguous(len, PVFS_BYTE, &amp;mem_req);</span><br><span class="line">ret = PVFS_Request_contiguous(len, PVFS_BYTE, &amp;file_req);</span><br><span class="line"><span class="keyword">if</span> (file_ptr_type == ADIO_EXPLICIT_OFFSET)&#123;</span><br><span class="line">    <span class="comment">//PVFS_sys_write is in include/pvfs2-compat.h</span></span><br><span class="line">	ret = PVFS_sys_write(pvfs_fs-&gt;object_ref, file_req, offset,  buf, </span><br><span class="line">			     mem_req, &amp;(pvfs_fs-&gt;credentials), &amp;resp_io);</span><br><span class="line">	fd-&gt;fp_sys_posn = offset + (<span class="keyword">int</span>) resp_io.total_completed;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">	ret = PVFS_sys_write(pvfs_fs-&gt;object_ref, file_req, fd-&gt;fp_ind, buf, </span><br><span class="line">			     mem_req, &amp;(pvfs_fs-&gt;credentials), &amp;resp_io);</span><br><span class="line"></span><br><span class="line">	fd-&gt;fp_ind += (<span class="keyword">int</span>)resp_io.total_completed;</span><br><span class="line">	fd-&gt;fp_sys_posn = fd-&gt;fp_ind;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> HAVE_STATUS_SET_BYTES</span></span><br><span class="line">    MPIR_Status_set_bytes(status, datatype, (<span class="keyword">int</span>)resp_io.total_completed);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    *error_code = MPI_SUCCESS;</span><br><span class="line">    PVFS_Request_free(&amp;file_req);</span><br><span class="line">    PVFS_Request_free(&amp;mem_req);</span><br><span class="line">    <span class="keyword">return</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//PVFS_Request_contiguous 函数原型。</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">PVFS_Request_contiguous</span><span class="params">(<span class="keyword">int32_t</span> count,</span></span></span><br><span class="line"><span class="function"><span class="params">                            PVFS_Request oldreq,</span></span></span><br><span class="line"><span class="function"><span class="params">                            PVFS_Request * newreq)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> PVFS_Request_hvector(<span class="number">1</span>, count, <span class="number">0</span>, oldreq, newreq);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//PVFS_Request_hvector 函数原型。</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	实际调用时的参数传递：PVFS_Request_hvector(1, len, 0, PVFS_BYTE, mem_req);</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">PVFS_Request_hvector</span><span class="params">(<span class="keyword">int32_t</span> count,</span></span></span><br><span class="line"><span class="function"><span class="params">                         <span class="keyword">int32_t</span> blocklength,</span></span></span><br><span class="line"><span class="function"><span class="params">                         PVFS_size stride,</span></span></span><br><span class="line"><span class="function"><span class="params">                         PVFS_Request oldreq,</span></span></span><br><span class="line"><span class="function"><span class="params">                         PVFS_Request * newreq)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PVFS_size oldext;</span><br><span class="line">    <span class="keyword">if</span> (oldreq == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> PVFS_ERR_REQ;</span><br><span class="line">    PVFS_Request_extent(oldreq, &amp;oldext);</span><br><span class="line">    <span class="comment">// PINT_REQUEST_REFINC(oldreq);</span></span><br><span class="line">    *newreq = (PINT_Request *) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct PINT_Request));</span><br><span class="line">    (*newreq)-&gt;sreq = <span class="literal">NULL</span>;</span><br><span class="line">    PINT_subreq(<span class="number">0</span>, blocklength, stride, count, oldreq, oldext, newreq);</span><br><span class="line">    <span class="comment">/* calculate statistics like ub, lb, depth, etc. */</span></span><br><span class="line">    <span class="keyword">if</span> (stride &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        (*newreq)-&gt;lb = (count - <span class="number">1</span>) * stride;</span><br><span class="line">    &#125;</span><br><span class="line">    PINT_REQUEST_REFSET(*newreq);</span><br><span class="line">    <span class="keyword">return</span> PVFS_SUCCESS;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">	实际调用时的参数传递：PVFS_Request_extent(PVFS_BYTE, oldext);</span></span><br><span class="line"><span class="comment">	该函数是求oldreq的长度，这里是PVFS_BYTE</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">PVFS_Request_extent</span><span class="params">(PVFS_Request request,</span></span></span><br><span class="line"><span class="function"><span class="params">                        PVFS_size * extent)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (request == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> PVFS_ERR_REQ;</span><br><span class="line">    *extent = request-&gt;ub - request-&gt;lb;</span><br><span class="line">    <span class="keyword">return</span> PVFS_SUCCESS;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> 用oldreq作为etype组合成新的request。代码比较简单。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> </span><br><span class="line"> <span class="comment">//PINT_subreq(0, blocklength, stride, count, oldreq, oldext, newreq);</span></span><br><span class="line"> <span class="comment">//PINT_subreq(0, len,          0,      1,   PVFS_BYTE, oldext, mem_req);</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">PINT_subreq</span><span class="params">(PVFS_offset offset,</span></span></span><br><span class="line"><span class="function"><span class="params">                       <span class="keyword">int32_t</span> bsize,</span></span></span><br><span class="line"><span class="function"><span class="params">                       PVFS_size stride,</span></span></span><br><span class="line"><span class="function"><span class="params">                       <span class="keyword">int32_t</span> count,</span></span></span><br><span class="line"><span class="function"><span class="params">                       PVFS_Request oldreq,</span></span></span><br><span class="line"><span class="function"><span class="params">                       PVFS_size oldext,</span></span></span><br><span class="line"><span class="function"><span class="params">                       PVFS_Request * newreq)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (oldreq == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> PVFS_ERR_REQ;</span><br><span class="line">	<span class="comment">//初始新的PVFS-request</span></span><br><span class="line">    (*newreq)-&gt;offset = offset;</span><br><span class="line">    (*newreq)-&gt;num_ereqs = bsize;</span><br><span class="line">    (*newreq)-&gt;stride = stride;</span><br><span class="line">    (*newreq)-&gt;num_blocks = count;</span><br><span class="line">    (*newreq)-&gt;ub = offset + ((count - <span class="number">1</span>) * stride) + (bsize * oldext);</span><br><span class="line">    (*newreq)-&gt;lb = offset;</span><br><span class="line">    (*newreq)-&gt;aggregate_size = oldreq-&gt;aggregate_size * count * bsize;</span><br><span class="line">    <span class="comment">/* compute num_contig_chunks */</span></span><br><span class="line">    <span class="keyword">if</span> (oldreq-&gt;aggregate_size == oldext &amp;&amp; oldreq-&gt;num_contig_chunks == <span class="number">1</span>)</span><br><span class="line">        <span class="comment">/* oldreq is contiguous */</span></span><br><span class="line">        <span class="keyword">if</span> (count == <span class="number">1</span> || stride == bsize * oldext || -stride == bsize * oldext)</span><br><span class="line">            <span class="comment">/* newreq will be contiguous */</span></span><br><span class="line">            (*newreq)-&gt;num_contig_chunks = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="comment">/* each block will be contiguous */</span></span><br><span class="line">            (*newreq)-&gt;num_contig_chunks = count;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">/* nothing is contiguous */</span></span><br><span class="line">        (*newreq)-&gt;num_contig_chunks =</span><br><span class="line">            oldreq-&gt;num_contig_chunks * bsize * count;</span><br><span class="line">    (*newreq)-&gt;depth = oldreq-&gt;depth + <span class="number">1</span>;</span><br><span class="line">    (*newreq)-&gt;num_nested_req = oldreq-&gt;num_nested_req + <span class="number">1</span>;</span><br><span class="line">    (*newreq)-&gt;committed = <span class="number">0</span>;</span><br><span class="line">    (*newreq)-&gt;refcount = <span class="number">0</span>;</span><br><span class="line">    (*newreq)-&gt;ereq = oldreq;</span><br><span class="line">    PINT_REQUEST_REFINC(oldreq);</span><br><span class="line">    <span class="keyword">return</span> PVFS_SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后调用 <code>PVFS_sys_write</code> 进行写操作，<code>PVFS_sys_write</code> 调用关系如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PVFS_sys_write(ref,req,off,buf,mem_req,creds,resp) \</span></span><br><span class="line">   PVFS_sys_io(ref,req,off,buf,mem_req,creds,resp,PVFS_IO_WRITE,PVFS_HINT_NULL)</span><br><span class="line">   </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ADIOI_PVFS2_fs_s</span> &#123;</span></span><br><span class="line">    PVFS_object_ref object_ref;</span><br><span class="line">    PVFS_credentials credentials;</span><br><span class="line">&#125; ADIOI_PVFS2_fs_s;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ADIOI_PVFS2_fs_s</span> <span class="title">ADIOI_PVFS2_fs</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    PVFS_handle handle;</span><br><span class="line">    PVFS_fs_id fs_id;</span><br><span class="line">    <span class="keyword">int32_t</span>    __pad1;</span><br><span class="line">&#125; PVFS_object_ref;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PVFS_sysresp_io_s</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    PVFS_size total_completed;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">PVFS_sysresp_io_s</span> <span class="title">PVFS_sysresp_io</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//PVFS_sys_write(pvfs_fs-&gt;object_ref, file_req, offset,  buf, </span></span><br><span class="line">			     mem_req, &amp;(pvfs_fs-&gt;credentials), &amp;resp_io);</span><br><span class="line">				 </span><br><span class="line"><span class="comment">/** Perform a read or write operation.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  \param type specifies if the operation is a read or write.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">PVFS_error <span class="title">PVFS_sys_io</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_object_ref ref,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_Request file_req,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_offset file_req_offset,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">void</span> *buffer,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_Request mem_req,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">const</span> PVFS_credentials *credentials,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_sysresp_io *resp_p,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">enum</span> PVFS_io_type io_type,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_hint hints)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PVFS_error ret = -PVFS_EINVAL, error = <span class="number">0</span>;</span><br><span class="line">    PVFS_sys_op_id op_id;</span><br><span class="line"></span><br><span class="line">    gossip_debug(GOSSIP_CLIENT_DEBUG, <span class="string">"PVFS_sys_io entered\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//初始化读写操作，应该是在给op_id赋值，传递给server进行操作</span></span><br><span class="line">    ret = PVFS_isys_io(ref, file_req, file_req_offset, buffer, mem_req,</span><br><span class="line">                       credentials, resp_p, io_type, &amp;op_id, hints, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (ret == <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        PVFS_perror_gossip(<span class="string">"PVFS_isys_io call"</span>, ret);</span><br><span class="line">        error = ret;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> </span><br><span class="line">    &#123;</span><br><span class="line">    	<span class="comment">//发送io请求，等待io完成</span></span><br><span class="line">        ret = PVFS_sys_wait(op_id, <span class="string">"io"</span>, &amp;error);</span><br><span class="line">        <span class="keyword">if</span> (ret)</span><br><span class="line">        &#123;</span><br><span class="line">            PVFS_perror_gossip(<span class="string">"PVFS_sys_wait call"</span>, ret);</span><br><span class="line">            error = ret;</span><br><span class="line">        &#125;</span><br><span class="line">        PINT_sys_release(op_id);</span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> error;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Initiate a read or write operation.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  \param type specifies if the operation is a read or write.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">PVFS_error <span class="title">PVFS_isys_io</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="comment">//ref是一个pvfs文件对象(文件，目录，链接)</span></span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_object_ref ref,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_Request file_req,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_offset file_req_offset,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">void</span> *buffer,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_Request mem_req,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">const</span> PVFS_credentials *credentials,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_sysresp_io *resp_p,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">enum</span> PVFS_io_type io_type,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_sys_op_id *op_id,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_hint hints,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">void</span> *user_ptr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PVFS_error ret = -PVFS_EINVAL;</span><br><span class="line">    PINT_smcb *smcb = <span class="literal">NULL</span>;</span><br><span class="line">    PINT_client_sm *sm_p = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">filesystem_configuration_s</span>* <span class="title">cur_fs</span> = <span class="title">NULL</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">server_configuration_s</span> *<span class="title">server_config</span> = <span class="title">NULL</span>;</span></span><br><span class="line"></span><br><span class="line">    gossip_debug(GOSSIP_CLIENT_DEBUG, <span class="string">"PVFS_isys_io entered [%llu]\n"</span>,</span><br><span class="line">                 llu(ref.handle));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((ref.handle == PVFS_HANDLE_NULL) ||</span><br><span class="line">        (ref.fs_id == PVFS_FS_ID_NULL) || (resp_p == <span class="literal">NULL</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        gossip_err(<span class="string">"invalid (NULL) required argument\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((io_type != PVFS_IO_READ) &amp;&amp; (io_type != PVFS_IO_WRITE))</span><br><span class="line">    &#123;</span><br><span class="line">        gossip_err(<span class="string">"invalid (unknown) I/O type specified\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//找到文件系统配置文件 先找sever配置fs.conf,</span></span><br><span class="line">    server_config = PINT_get_server_config_struct(ref.fs_id);</span><br><span class="line">    cur_fs = PINT_config_find_fs_id(server_config, ref.fs_id);</span><br><span class="line">    PINT_put_server_config_struct(server_config);</span><br><span class="line">	<span class="comment">//找完了</span></span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!cur_fs)</span><br><span class="line">    &#123;</span><br><span class="line">        gossip_err(<span class="string">"invalid (unknown) fs id specified\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* look for zero byte operations */</span></span><br><span class="line">    <span class="keyword">if</span> ((PINT_REQUEST_TOTAL_BYTES(mem_req) == <span class="number">0</span>) ||</span><br><span class="line">        (PINT_REQUEST_TOTAL_BYTES(file_req) == <span class="number">0</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        gossip_ldebug(GOSSIP_IO_DEBUG, <span class="string">"Warning: 0 byte I/O operation "</span></span><br><span class="line">                      <span class="string">"attempted.\n"</span>);</span><br><span class="line">        resp_p-&gt;total_completed = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>; </span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//应该只是分配一段空间给smcb，在smcb中定义了操作类型PVFS_SYS_IO</span></span><br><span class="line">	<span class="comment">//一个smcb对应一个sm执行实例</span></span><br><span class="line">    PINT_smcb_alloc(&amp;smcb, PVFS_SYS_IO,</span><br><span class="line">             <span class="keyword">sizeof</span>(struct PINT_client_sm),</span><br><span class="line">             client_op_state_get_machine,</span><br><span class="line">             client_state_machine_terminate,</span><br><span class="line">             pint_client_sm_context);</span><br><span class="line">	<span class="comment">//检查是否分配成功</span></span><br><span class="line">    <span class="keyword">if</span> (smcb == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> -PVFS_ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//PINT_client_sm</span></span><br><span class="line">    sm_p = PINT_sm_frame(smcb, PINT_FRAME_CURRENT);</span><br><span class="line"></span><br><span class="line">    PINT_init_msgarray_params(sm_p, ref.fs_id);</span><br><span class="line">    PINT_init_sysint_credentials(sm_p-&gt;cred_p, credentials);</span><br><span class="line"></span><br><span class="line">    sm_p-&gt;u.io.io_type = io_type;</span><br><span class="line">    sm_p-&gt;u.io.file_req = file_req;</span><br><span class="line">    sm_p-&gt;u.io.file_req_offset = file_req_offset;</span><br><span class="line">    sm_p-&gt;u.io.io_resp_p = resp_p;</span><br><span class="line">    sm_p-&gt;u.io.mem_req = mem_req;</span><br><span class="line">    sm_p-&gt;u.io.buffer = buffer; </span><br><span class="line">    sm_p-&gt;u.io.flowproto_type = cur_fs-&gt;flowproto;</span><br><span class="line">    sm_p-&gt;u.io.encoding = cur_fs-&gt;encoding;</span><br><span class="line">    sm_p-&gt;u.io.stored_error_code = <span class="number">0</span>;</span><br><span class="line">    sm_p-&gt;u.io.retry_count = <span class="number">0</span>;</span><br><span class="line">    sm_p-&gt;msgarray_op.msgarray = <span class="literal">NULL</span>;</span><br><span class="line">    sm_p-&gt;msgarray_op.count = <span class="number">0</span>;</span><br><span class="line">    sm_p-&gt;u.io.datafile_index_array = <span class="literal">NULL</span>;</span><br><span class="line">    sm_p-&gt;u.io.datafile_count = <span class="number">0</span>;</span><br><span class="line">    sm_p-&gt;u.io.total_size = <span class="number">0</span>;</span><br><span class="line">    sm_p-&gt;u.io.small_io = <span class="number">0</span>;</span><br><span class="line">    sm_p-&gt;object_ref = ref;</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">    PVFS_hint_copy(hints, &amp;sm_p-&gt;hints);</span><br><span class="line">    PVFS_hint_add(&amp;sm_p-&gt;hints, PVFS_HINT_HANDLE_NAME, <span class="keyword">sizeof</span>(PVFS_handle), &amp;ref.handle);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//post发送请求，实际上就是开启状态机，等待请求完成</span></span><br><span class="line">    <span class="keyword">return</span> PINT_client_state_machine_post(</span><br><span class="line">        smcb,  op_id, user_ptr);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Adds a state machine into the list of machines that are being</span></span><br><span class="line"><span class="comment"> *  actively serviced.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">PVFS_error <span class="title">PINT_client_state_machine_post</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    PINT_smcb *smcb,</span></span></span><br><span class="line"><span class="function"><span class="params">    PVFS_sys_op_id *op_id,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">void</span> *user_ptr <span class="comment">/* in */</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PINT_sm_action sm_ret;</span><br><span class="line">    PVFS_error ret = -PVFS_EINVAL;</span><br><span class="line">    job_status_s js;</span><br><span class="line">    <span class="keyword">int</span> pvfs_sys_op = PINT_smcb_op(smcb);</span><br><span class="line">    PINT_client_sm *sm_p = PINT_sm_frame(smcb, PINT_FRAME_CURRENT);</span><br><span class="line"></span><br><span class="line">    PVFS_hint_add_internal(&amp;sm_p-&gt;hints, PINT_HINT_OP_ID, <span class="keyword">sizeof</span>(pvfs_sys_op), &amp;pvfs_sys_op);</span><br><span class="line"></span><br><span class="line">    PINT_EVENT_START(PINT_client_sys_event_id, pint_client_pid, <span class="literal">NULL</span>, &amp;sm_p-&gt;event_id,</span><br><span class="line">                     PINT_HINT_GET_CLIENT_ID(sm_p-&gt;hints),</span><br><span class="line">                     PINT_HINT_GET_RANK(sm_p-&gt;hints),</span><br><span class="line">                     PINT_HINT_GET_REQUEST_ID(sm_p-&gt;hints),</span><br><span class="line">                     PINT_HINT_GET_HANDLE(sm_p-&gt;hints),</span><br><span class="line">                     pvfs_sys_op);</span><br><span class="line"></span><br><span class="line">    gossip_debug(GOSSIP_CLIENT_DEBUG,</span><br><span class="line">                 <span class="string">"PINT_client_state_machine_post smcb %p, op: %s\n"</span>,</span><br><span class="line">                 smcb, PINT_client_get_name_str(smcb-&gt;op));</span><br><span class="line"></span><br><span class="line">    CLIENT_SM_ASSERT_INITIALIZED();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!smcb)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memset</span>(&amp;js, <span class="number">0</span>, <span class="keyword">sizeof</span>(js));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* save operation type; mark operation as unfinished */</span></span><br><span class="line">    sm_p-&gt;user_ptr = user_ptr;</span><br><span class="line"></span><br><span class="line">    gen_mutex_lock(&amp;test_mutex);</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">      start state machine and continue advancing while we're getting</span></span><br><span class="line"><span class="comment">      immediate completions</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="comment">//开启状态机，表示操作正式开始</span></span><br><span class="line">    sm_ret = PINT_state_machine_start(smcb, &amp;js);</span><br><span class="line">    assert(SM_ACTION_ISVALID(sm_ret));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(sm_ret &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* state machine code failed */</span></span><br><span class="line">        gen_mutex_unlock(&amp;test_mutex);</span><br><span class="line">        <span class="keyword">return</span> sm_ret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//等待状态机是否完成</span></span><br><span class="line">    <span class="keyword">if</span> (PINT_smcb_complete(smcb))</span><br><span class="line">    &#123;</span><br><span class="line">        assert(sm_ret == SM_ACTION_TERMINATE);</span><br><span class="line"></span><br><span class="line">        PINT_EVENT_END(PINT_client_sys_event_id, pint_client_pid, <span class="literal">NULL</span>, sm_p-&gt;event_id, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        *op_id = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* free the smcb and any other extra data allocated there */</span></span><br><span class="line">        PINT_sys_release_smcb(smcb);</span><br><span class="line"></span><br><span class="line">        gossip_debug(</span><br><span class="line">            GOSSIP_CLIENT_DEBUG, <span class="string">"Posted %s (%llu) "</span></span><br><span class="line">                    <span class="string">"(ran to termination)(%d)\n"</span>,</span><br><span class="line">                    PINT_client_get_name_str(pvfs_sys_op),</span><br><span class="line">                    llu((op_id ? *op_id : <span class="number">-1</span>)),</span><br><span class="line">                    js.error_code);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        assert(sm_ret == SM_ACTION_DEFERRED);</span><br><span class="line"></span><br><span class="line">        PINT_id_gen_safe_register(&amp;sm_p-&gt;sys_op_id, (<span class="keyword">void</span> *)smcb);</span><br><span class="line">        <span class="keyword">if</span> (op_id)</span><br><span class="line">        &#123;</span><br><span class="line">            *op_id = sm_p-&gt;sys_op_id;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        gossip_debug(</span><br><span class="line">            GOSSIP_CLIENT_DEBUG, <span class="string">"Posted %s (%lld) "</span></span><br><span class="line">                    <span class="string">"(waiting for test)(%d)\n"</span>,</span><br><span class="line">                    PINT_client_get_name_str(pvfs_sys_op),</span><br><span class="line">                    lld((op_id ? *op_id : <span class="number">-1</span>)),</span><br><span class="line">                    ret);</span><br><span class="line">    &#125;</span><br><span class="line">    gen_mutex_unlock(&amp;test_mutex);</span><br><span class="line">    <span class="keyword">return</span> js.error_code;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>io状态机示意图：</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/FikcTK.jpg" alt="io-statemachine"></p>
+<p>client-sm定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_sm</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">/* this code removed and corresponding fields added to the generic</span></span><br><span class="line"><span class="comment">     * state machine code in the PINT_smcb struct</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="comment">/* used internally by client-state-machine.c */</span></span><br><span class="line">    PVFS_sys_op_id sys_op_id;</span><br><span class="line">    <span class="keyword">void</span> *user_ptr;</span><br><span class="line"></span><br><span class="line">    PINT_event_id event_id;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* stores the final operation error code on operation exit */</span></span><br><span class="line">    PVFS_error error_code;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> comp_ct; <span class="comment">/* used to keep up with completion of multiple</span></span><br><span class="line"><span class="comment">		  * jobs for some states; typically set and</span></span><br><span class="line"><span class="comment">		  * then decremented to zero as jobs complete */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* generic getattr used with getattr sub state machines */</span></span><br><span class="line">    PINT_sm_getattr_state getattr;</span><br><span class="line">    <span class="comment">/* generic dirent array used by both readdir and readdirplus state machines */</span></span><br><span class="line">    PINT_sm_readdir_state readdir;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* fetch_config state used by the nested fetch config state machines */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">PINT_server_fetch_config_sm_state</span> <span class="title">fetch_config</span>;</span></span><br><span class="line"></span><br><span class="line">    PVFS_hint hints;</span><br><span class="line"></span><br><span class="line">    PINT_sm_msgarray_op msgarray_op;</span><br><span class="line"></span><br><span class="line">    PVFS_object_ref object_ref;</span><br><span class="line">    PVFS_object_ref parent_ref;</span><br><span class="line"></span><br><span class="line">    PVFS_credentials *cred_p;</span><br><span class="line">    <span class="keyword">union</span></span><br><span class="line">    &#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_remove_sm</span> <span class="title">remove</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_create_sm</span> <span class="title">create</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mkdir_sm</span> <span class="title">mkdir</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_symlink_sm</span> <span class="title">sym</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_getattr_sm</span> <span class="title">getattr</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_setattr_sm</span> <span class="title">setattr</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_io_sm</span> <span class="title">io</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_flush_sm</span> <span class="title">flush</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_readdir_sm</span> <span class="title">readdir</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_readdirplus_sm</span> <span class="title">readdirplus</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_lookup_sm</span> <span class="title">lookup</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_rename_sm</span> <span class="title">rename</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mgmt_setparam_list_sm</span> <span class="title">setparam_list</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_truncate_sm</span>  <span class="title">truncate</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mgmt_statfs_list_sm</span> <span class="title">statfs_list</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mgmt_perf_mon_list_sm</span> <span class="title">perf_mon_list</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mgmt_event_mon_list_sm</span> <span class="title">event_mon_list</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mgmt_iterate_handles_list_sm</span> <span class="title">iterate_handles_list</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mgmt_get_dfile_array_sm</span> <span class="title">get_dfile_array</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mgmt_remove_dirent_sm</span> <span class="title">mgmt_remove_dirent</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mgmt_create_dirent_sm</span> <span class="title">mgmt_create_dirent</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_mgmt_get_dirdata_handle_sm</span> <span class="title">mgmt_get_dirdata_handle</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_server_get_config_sm</span> <span class="title">get_config</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_geteattr_sm</span> <span class="title">geteattr</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_seteattr_sm</span> <span class="title">seteattr</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_deleattr_sm</span> <span class="title">deleattr</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_listeattr_sm</span> <span class="title">listeattr</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_perf_count_timer_sm</span> <span class="title">perf_count_timer</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">PINT_sysdev_unexp_sm</span> <span class="title">sysdev_unexp</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_job_timer_sm</span> <span class="title">job_timer</span>;</span></span><br><span class="line">    &#125; u;</span><br><span class="line">&#125; PINT_client_sm;</span><br></pre></td></tr></table></figure>
+<p>io-statemachine的定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PINT_client_io_sm</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">/* input parameters */</span></span><br><span class="line">    <span class="keyword">enum</span> PVFS_io_type io_type;</span><br><span class="line">    PVFS_Request file_req;</span><br><span class="line">    PVFS_offset file_req_offset;</span><br><span class="line">    <span class="keyword">void</span> *buffer;</span><br><span class="line">    PVFS_Request mem_req;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* output parameter */</span></span><br><span class="line">    PVFS_sysresp_io *io_resp_p;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">enum</span> PVFS_flowproto_type flowproto_type;</span><br><span class="line">    <span class="keyword">enum</span> PVFS_encoding_type encoding;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> *datafile_index_array;</span><br><span class="line">    <span class="keyword">int</span> datafile_count;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> msgpair_completion_count;</span><br><span class="line">    <span class="keyword">int</span> flow_completion_count;</span><br><span class="line">    <span class="keyword">int</span> write_ack_completion_count;</span><br><span class="line"></span><br><span class="line">    PINT_client_io_ctx *contexts;</span><br><span class="line">    <span class="keyword">int</span> context_count;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> total_cancellations_remaining;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> retry_count;</span><br><span class="line">    <span class="keyword">int</span> stored_error_code;</span><br><span class="line"></span><br><span class="line">    PVFS_size total_size;</span><br><span class="line"></span><br><span class="line">    PVFS_size * dfile_size_array;</span><br><span class="line">    <span class="keyword">int</span> small_io;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>state-machine control block的定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* State machine control block - one per running instance of a state</span></span><br><span class="line"><span class="comment"> * machine</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">PINT_smcb</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">/* state machine execution variables */</span></span><br><span class="line">    <span class="keyword">int</span> stackptr;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">PINT_state_s</span> *<span class="title">current_state</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">PINT_state_stack_s</span> <span class="title">state_stack</span>[<span class="title">PINT_STATE_STACK_SIZE</span>];</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">qlist_head</span> <span class="title">frames</span>;</span>  <span class="comment">/* circular list of frames */</span></span><br><span class="line">    <span class="keyword">int</span> base_frame;   <span class="comment">/* index of current base frame */</span></span><br><span class="line">    <span class="keyword">int</span> frame_count;  <span class="comment">/* number of frames in list */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* usage specific routinet to look up SM from OP */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">PINT_state_machine_s</span> *(*<span class="title">op_get_state_machine</span>)(<span class="title">int</span>);</span></span><br><span class="line">    <span class="comment">/* state machine context and control variables */</span></span><br><span class="line">    <span class="keyword">int</span> op; <span class="comment">/* this field externally indicates type of state machine */</span></span><br><span class="line">    PVFS_id_gen_t op_id; <span class="comment">/* unique ID for this operation */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">PINT_smcb</span> *<span class="title">parent_smcb</span>;</span> <span class="comment">/* points to parent smcb or NULL */</span></span><br><span class="line">    <span class="keyword">int</span> op_terminate; <span class="comment">/* indicates SM is ready to terminate */</span></span><br><span class="line">    <span class="keyword">int</span> op_cancelled; <span class="comment">/* indicates SM operation was cancelled */</span></span><br><span class="line">    <span class="keyword">int</span> children_running; <span class="comment">/* the number of child SMs running */</span></span><br><span class="line">    <span class="keyword">int</span> op_completed;  <span class="comment">/* indicates SM operation was added to completion Q */</span></span><br><span class="line">    <span class="comment">/* add a lock here */</span></span><br><span class="line">    job_context_id context; <span class="comment">/* job context when waiting for children */</span></span><br><span class="line">    <span class="keyword">int</span> (*terminate_fn)(struct PINT_smcb *, job_status_s *);</span><br><span class="line">    <span class="keyword">void</span> *user_ptr; <span class="comment">/* external user pointer */</span></span><br><span class="line">    <span class="keyword">int</span> immediate; <span class="comment">/* specifies immediate completion of the state machine */</span></span><br><span class="line">&#125; PINT_smcb;</span><br></pre></td></tr></table></figure>
+<p>PVFS2中每一种系统操作(VFS文件操作)都对应一种状态机，statemachine。一个运行的状态机实例对应一个状态机控制器，smcb。状态机运行时有两个栈，一个是状态机栈，一个是帧（frame）栈，帧栈保留的是与状态机相关的参数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/* Function: PINT_smcb_alloc</span></span><br><span class="line"><span class="comment">   Params: pointer to an smcb pointer, an op code (int), size of frame</span></span><br><span class="line"><span class="comment">            (int), pinter to function to locate SM</span></span><br><span class="line"><span class="comment">   Returns: nothing, but fills in pointer argument</span></span><br><span class="line"><span class="comment">   Synopsis: this allocates an smcb struct, including its frame stack</span></span><br><span class="line"><span class="comment">             and sets the op code so you can start the state machine</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">PINT_smcb_alloc</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        struct PINT_smcb **smcb,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> op,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> frame_size,</span></span></span><br><span class="line">        struct PINT_state_machine_s *(*getmach)(int),</span><br><span class="line">        <span class="keyword">int</span> (*term_fn)(struct PINT_smcb *, job_status_s *),</span><br><span class="line">        job_context_id context_id)</span><br><span class="line">&#123;</span><br><span class="line">    *smcb = (struct PINT_smcb *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct PINT_smcb));</span><br><span class="line">    <span class="keyword">if</span> (!(*smcb))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> -PVFS_ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* zero out all members */</span></span><br><span class="line">    <span class="built_in">memset</span>(*smcb, <span class="number">0</span>, <span class="keyword">sizeof</span>(struct PINT_smcb));</span><br><span class="line"></span><br><span class="line">    INIT_QLIST_HEAD(&amp;(*smcb)-&gt;frames);</span><br><span class="line">    (*smcb)-&gt;base_frame = <span class="number">-1</span>; <span class="comment">/* no frames yet */</span></span><br><span class="line">    (*smcb)-&gt;frame_count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* if frame_size given, allocate a frame */</span></span><br><span class="line">    <span class="keyword">if</span> (frame_size &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">void</span> *new_frame = <span class="built_in">malloc</span>(frame_size);</span><br><span class="line">        <span class="keyword">if</span> (!new_frame)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">free</span>(*smcb);</span><br><span class="line">            *smcb = <span class="literal">NULL</span>;</span><br><span class="line">            <span class="keyword">return</span> -PVFS_ENOMEM;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/* zero out all members */</span></span><br><span class="line">        <span class="built_in">memset</span>(new_frame, <span class="number">0</span>, frame_size);</span><br><span class="line">        PINT_sm_push_frame(*smcb, <span class="number">0</span>, new_frame);</span><br><span class="line">        (*smcb)-&gt;base_frame = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    (*smcb)-&gt;op = op;</span><br><span class="line">    (*smcb)-&gt;op_get_state_machine = getmach;</span><br><span class="line">    (*smcb)-&gt;terminate_fn = term_fn;</span><br><span class="line">    (*smcb)-&gt;context = context_id;</span><br><span class="line">    <span class="comment">/* if a getmach given, lookup state machine */</span></span><br><span class="line">    <span class="keyword">if</span> (getmach)</span><br><span class="line">        <span class="keyword">return</span> PINT_state_machine_locate(*smcb);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">/* success */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Function: PINT_state_machine_locate(void)</span></span><br><span class="line"><span class="comment">   Params:   smcb pointer with op correctly set</span></span><br><span class="line"><span class="comment">   Returns:  1 on successful locate, 0 on locate failure, &lt;0 on error</span></span><br><span class="line"><span class="comment">   Synopsis: This function locates the state associated with the op</span></span><br><span class="line"><span class="comment">             specified in smcb-&gt;op in order to start a state machine's</span></span><br><span class="line"><span class="comment">             execution.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">PINT_state_machine_locate</span><span class="params">(struct PINT_smcb *smcb)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">PINT_state_s</span> *<span class="title">current_tmp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">PINT_state_machine_s</span> *<span class="title">op_sm</span>;</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *state_name;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *machine_name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* check for valid inputs */</span></span><br><span class="line">    <span class="keyword">if</span> (!smcb || smcb-&gt;op &lt; <span class="number">0</span> || !smcb-&gt;op_get_state_machine)</span><br><span class="line">    &#123;</span><br><span class="line">	gossip_err(<span class="string">"State machine requested not valid\n"</span>);</span><br><span class="line">	<span class="keyword">return</span> -PVFS_EINVAL;</span><br><span class="line">    &#125;</span><br><span class="line">    gossip_debug(GOSSIP_STATE_MACHINE_DEBUG,</span><br><span class="line">            <span class="string">"[SM Locating]: (%p) op-id: %d\n"</span>,smcb,(smcb)-&gt;op);</span><br><span class="line">    <span class="comment">/* this is a the usage dependant routine to look up the SM */</span></span><br><span class="line">    op_sm = (*smcb-&gt;op_get_state_machine)(smcb-&gt;op);</span><br><span class="line">    <span class="keyword">if</span> (op_sm != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">	current_tmp = op_sm-&gt;first_state;</span><br><span class="line">	<span class="comment">/* handle the case in which the first state points to a nested</span></span><br><span class="line"><span class="comment">	 * machine, rather than a simple function</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">while</span>(current_tmp-&gt;flag == SM_JUMP)</span><br><span class="line">	&#123;</span><br><span class="line">	    PINT_push_state(smcb, current_tmp);</span><br><span class="line">	    current_tmp = ((struct PINT_state_machine_s *)</span><br><span class="line">                           current_tmp-&gt;action.nested)-&gt;first_state;</span><br><span class="line">	&#125;</span><br><span class="line">        smcb-&gt;current_state = current_tmp;</span><br><span class="line"></span><br><span class="line">        state_name = PINT_state_machine_current_state_name(smcb);</span><br><span class="line">        machine_name = PINT_state_machine_current_machine_name(smcb);</span><br><span class="line"></span><br><span class="line">        gossip_debug(GOSSIP_STATE_MACHINE_DEBUG,</span><br><span class="line">                     <span class="string">"[SM Locating]: (%p) located: %s:%s\n"</span>,</span><br><span class="line">                     smcb, machine_name, state_name);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span>; <span class="comment">/* indicates successful locate */</span></span><br><span class="line">    &#125;</span><br><span class="line">    gossip_err(<span class="string">"State machine not found for operation %d\n"</span>,smcb-&gt;op);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">/* indicates failed to locate */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>PINT_smcb_alloc()根据分配一个smcb，初始化这个smcb，并初始化帧栈。传入函数指针 client_op_state_get_machine，将将其赋值给smcb-&gt;op_get_state_machine。调用PINT_state_machine_locate(*smcb)，这个函数会调用smcb-&gt;op_get_state_machine，也就是 client_op_state_get_machine，根据op找到对应的sm（一个op操作对应一个sm，sm的定义就是.sm后缀文件，也可以看.c文件的声明部分。），并且初始化smcb-&gt;current_state。如果sm的初始状态的flag是jump的话，要一直进入到最终的状态机（初始状态不是JUMP动作）中，将最终状态机的first_state作为smcb-&gt;current_state。</p>
+<p>返回PINT_client_state_machine_post()，该函数实际会调用 PINT_state_machine_start()，即启动IO状态机。 PINT_state_machine_start会调用PINT_state_machine_invoke(),该函数执行current_state的action.func，这样就跳到了状态机的逻辑中。</p>
+<p>每一个状态执行开始，第一个动作就是在帧栈里取smcb对应的帧，执行过程中修改帧，如果涉及跳入嵌套状态机，则状态机退出时需要将帧压栈。</p>
+<p>根据io状态机的描述，比较重要的几个state是<strong>io_datafile_setup_msgpairs</strong>，<strong>io_datafile_post_msgpairs</strong>，<strong>io_datafile_complete_operations</strong>。</p>
+<ul>
+<li><p><strong>io_datafile_setup_msgpairs</strong>对应的执行函数是<code>io_datafile_setup_msgpairs</code>，其中会调用<code>io_find_target_datafiles</code>，将请求拆分为子请求。</p>
+</li>
+<li><p><strong>io_datafile_post_msgpairs</strong>对应的执行函数是<code>io_datafile_post_msgpairs</code>。</p>
+</li>
+<li><p><strong>io_datafile_complete_operations</strong>对应的执行函数是<code>io_datafile_complete_operations</code>，其中会调用<code>io_post_flow</code>。</p>
+</li>
+</ul>
+<p><strong>io_post_flow</strong> 是一个非常重要的函数，其中会初始化<code>cur_ctx</code>，保存flow的上下文，并调用<code>job_flow</code>，<code>job_flow</code>调用<code>PINT_flow_post</code>,通过调用<code>active_flowproto_table[flowproto_id]-&gt;flowproto_post(flow_d)</code>正式开始一个io请求。<code>active_flowproto_table[flowproto_id]-&gt;flowproto_post(flow_d)</code>函数调用的是flow\Flowproto-bmi-trove\Flowproto-multiqueue.c中的<code>fp_multiqueue_post</code>，<code>fp_multiqueue_post</code>调用<code>mem_to_bmi_callback_fn</code>，该函数调用<code>BMI_post_send_list</code>,<code>BMI_post_send_list</code>调用<code>BMI_tcp_post_send_list</code>，<code>BMI_tcp_post_send_list</code>调用<code>tcp_post_send_generic</code>。</p>
+<p><strong><code>mem_to_bmi_callback_fn</code>中还有个函数<code>PINT_process_request</code>值得注意</strong>，<code>PINT_process_request</code>该函数调用<code>PINT_Distribute</code>来更新子请求？。</p>
+<p>在<code>mem_to_bmi_callback_fn</code>中用<code>fp_queue_item</code>数据结构来记录flow，<code>q_item-&gt;result_chain.result</code>记录实际的请求。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//q_item-&gt;result_chain.result的数据类型</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">PINT_Request_result</span> &#123;</span></span><br><span class="line">    <span class="comment">//里面存放着一个数组，表示请求里面的子请求的offset</span></span><br><span class="line">    PVFS_offset  *offset_array;<span class="comment">/* array of offsets for each segment output */</span></span><br><span class="line">    <span class="comment">//所有子请求的size</span></span><br><span class="line">    PVFS_size    *size_array;  <span class="comment">/* array of sizes for each segment output */</span></span><br><span class="line">    <span class="keyword">int32_t</span>      segmax;       <span class="comment">/* maximum number of segments to output */</span></span><br><span class="line">    <span class="keyword">int32_t</span>      segs;         <span class="comment">/* number of segments output */</span></span><br><span class="line">    <span class="comment">//最大输出的数量</span></span><br><span class="line">    PVFS_size    bytemax;      <span class="comment">/* maximum number of bytes to output */</span></span><br><span class="line">    <span class="comment">//输出数量的一个累计值</span></span><br><span class="line">    PVFS_size    bytes;        <span class="comment">/* number of bytes output */</span></span><br><span class="line">&#125; PINT_Request_result;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//cur_ctx初始化</span></span><br><span class="line">cur_ctx-&gt;flow_desc.file_data.fsize = sm_p-&gt;u.io.dfile_size_array[cur_ctx-&gt;index];</span><br><span class="line">cur_ctx-&gt;flow_desc.file_data.dist = attr-&gt;u.meta.dist;</span><br><span class="line">cur_ctx-&gt;flow_desc.file_data.server_nr = cur_ctx-&gt;server_nr;</span><br><span class="line">cur_ctx-&gt;flow_desc.file_data.server_ct = attr-&gt;u.meta.dfile_count;</span><br><span class="line">cur_ctx-&gt;flow_desc.file_req = sm_p-&gt;u.io.file_req;</span><br><span class="line">cur_ctx-&gt;flow_desc.file_req_offset = sm_p-&gt;u.io.file_req_offset;</span><br><span class="line">cur_ctx-&gt;flow_desc.mem_req = sm_p-&gt;u.io.mem_req;</span><br><span class="line">cur_ctx-&gt;flow_desc.tag = cur_ctx-&gt;session_tag;</span><br><span class="line">cur_ctx-&gt;flow_desc.type = sm_p-&gt;u.io.flowproto_type;</span><br><span class="line">cur_ctx-&gt;flow_desc.user_ptr = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (sm_p-&gt;u.io.io_type == PVFS_IO_READ)</span><br><span class="line">&#123;</span><br><span class="line">    cur_ctx-&gt;flow_desc.file_data.extend_flag = <span class="number">0</span>;</span><br><span class="line">    cur_ctx-&gt;flow_desc.src.endpoint_id = BMI_ENDPOINT;</span><br><span class="line">    cur_ctx-&gt;flow_desc.src.u.bmi.address = cur_ctx-&gt;msg.svr_addr;</span><br><span class="line">    cur_ctx-&gt;flow_desc.dest.endpoint_id = MEM_ENDPOINT;</span><br><span class="line">    cur_ctx-&gt;flow_desc.dest.u.mem.buffer = sm_p-&gt;u.io.buffer;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">    assert(sm_p-&gt;u.io.io_type == PVFS_IO_WRITE);</span><br><span class="line">    cur_ctx-&gt;flow_desc.file_data.extend_flag = <span class="number">1</span>;</span><br><span class="line">    cur_ctx-&gt;flow_desc.src.endpoint_id = MEM_ENDPOINT;</span><br><span class="line">    cur_ctx-&gt;flow_desc.src.u.mem.buffer = sm_p-&gt;u.io.buffer;</span><br><span class="line">    cur_ctx-&gt;flow_desc.dest.endpoint_id = BMI_ENDPOINT;</span><br><span class="line">    <span class="comment">//提供destination server的地址</span></span><br><span class="line">    cur_ctx-&gt;flow_desc.dest.u.bmi.address = cur_ctx-&gt;msg.svr_addr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//job_flow 函数定义（src\io\job）</span></span><br><span class="line"><span class="comment">/* job_flow()</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * posts a job to service a flow (where a flow is a complex I/O</span></span><br><span class="line"><span class="comment"> * operation between two endpoints, which may be memory, disk, or</span></span><br><span class="line"><span class="comment"> * network)</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * returns 0 on success, 1 on immediate completion, and -errno on</span></span><br><span class="line"><span class="comment"> * failure</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">job_flow</span><span class="params">(flow_descriptor * flow_d,</span></span></span><br><span class="line"><span class="function"><span class="params">             <span class="keyword">void</span> *user_ptr,</span></span></span><br><span class="line"><span class="function"><span class="params">             job_aint status_user_tag,</span></span></span><br><span class="line"><span class="function"><span class="params">             job_status_s * out_status_p,</span></span></span><br><span class="line"><span class="function"><span class="params">             <span class="keyword">job_id_t</span> * id,</span></span></span><br><span class="line"><span class="function"><span class="params">             job_context_id context_id,</span></span></span><br><span class="line"><span class="function"><span class="params">             <span class="keyword">int</span> timeout_sec,</span></span></span><br><span class="line"><span class="function"><span class="params">             PVFS_hint hints)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">job_desc</span> *<span class="title">jd</span> = <span class="title">NULL</span>;</span></span><br><span class="line">    <span class="keyword">int</span> ret = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* allocate job descriptor first */</span></span><br><span class="line">    <span class="comment">//分配一个job</span></span><br><span class="line">    jd = alloc_job_desc(JOB_FLOW);</span><br><span class="line">    <span class="keyword">if</span> (!jd)</span><br><span class="line">    &#123;</span><br><span class="line">        out_status_p-&gt;error_code = -PVFS_ENOMEM;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    jd-&gt;hints = hints;</span><br><span class="line">    flow_d-&gt;hints = hints;</span><br><span class="line">    jd-&gt;job_user_ptr = user_ptr;</span><br><span class="line">    jd-&gt;u.flow.flow_d = flow_d;</span><br><span class="line">    jd-&gt;context_id = context_id;</span><br><span class="line">    jd-&gt;status_user_tag = status_user_tag;</span><br><span class="line">    flow_d-&gt;user_ptr = jd;</span><br><span class="line">    flow_d-&gt;callback = flow_callback;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* post the flow */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//post出这个请求</span></span><br><span class="line"></span><br><span class="line">    ret = PINT_flow_post(flow_d);</span><br><span class="line">    <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        out_status_p-&gt;error_code = ret;</span><br><span class="line">        out_status_p-&gt;status_user_tag = status_user_tag;</span><br><span class="line">        dealloc_job_desc(jd);</span><br><span class="line">        jd = <span class="literal">NULL</span>;</span><br><span class="line">        <span class="keyword">return</span> (<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (ret == <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* immediate completion */</span></span><br><span class="line">        out_status_p-&gt;error_code = <span class="number">0</span>;</span><br><span class="line">        out_status_p-&gt;status_user_tag = status_user_tag;</span><br><span class="line">        out_status_p-&gt;actual_size = flow_d-&gt;total_transferred;</span><br><span class="line">        dealloc_job_desc(jd);</span><br><span class="line">        jd = <span class="literal">NULL</span>;</span><br><span class="line">        <span class="keyword">return</span> (<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">     <span class="comment">/* queue up the job desc. for later completion */</span></span><br><span class="line">     *id = jd-&gt;job_id;</span><br><span class="line">     flow_pending_count++;</span><br><span class="line">     gossip_debug(GOSSIP_FLOW_DEBUG, <span class="string">"Job flows in progress (post time): %d\n"</span>,</span><br><span class="line">                    flow_pending_count);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(job_time_mgr_add(jd, timeout_sec));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>PVFS2数据分布的有关函数指针。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Distribution functions that must be supplied by each dist implmentation */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">PINT_dist_methods_s</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">/* Returns the physical storage offset for a logical file offset */</span></span><br><span class="line">    PVFS_offset (*logical_to_physical_offset)(<span class="keyword">void</span>* params,</span><br><span class="line">                                              PINT_request_file_data* rf_data,</span><br><span class="line">                                              PVFS_offset logical_offset);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* Returns the logical file offset for a given physical storage offset */</span></span><br><span class="line">    PVFS_offset (*physical_to_logical_offset)(<span class="keyword">void</span>* params,</span><br><span class="line">                                              PINT_request_file_data* rf_data,</span><br><span class="line">                                              PVFS_offset physical_offset);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Returns the next physical offset for the file on server_nr given an</span></span><br><span class="line"><span class="comment">     * arbitraty logical offset (i.e. an offset anywhere in the file) */</span></span><br><span class="line">    PVFS_offset (*next_mapped_offset)(<span class="keyword">void</span>* params,</span><br><span class="line">                                      PINT_request_file_data* rf_data,</span><br><span class="line">                                      PVFS_offset logical_offset);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Returns the contiguous length of file data starting at physical_offset*/</span></span><br><span class="line">    PVFS_size (*contiguous_length)(<span class="keyword">void</span>* params,</span><br><span class="line">                                   PINT_request_file_data* rf_data,</span><br><span class="line">                                   PVFS_offset physical_offset);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Returns the logical file size */</span></span><br><span class="line">    PVFS_size (*logical_file_size)(<span class="keyword">void</span>* params,</span><br><span class="line">                                   <span class="keyword">uint32_t</span> num_handles,</span><br><span class="line">                                   PVFS_size *psizes);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Returns the number of data file objects to use for a file */</span></span><br><span class="line">    <span class="keyword">int</span> (*get_num_dfiles)(<span class="keyword">void</span>* params,</span><br><span class="line">                          <span class="keyword">uint32_t</span> num_servers_available,</span><br><span class="line">                          <span class="keyword">uint32_t</span> num_dfiles_requested);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Sets the parameter designated by name to the given value */</span></span><br><span class="line">    <span class="keyword">int</span> (*set_param)(<span class="keyword">const</span> <span class="keyword">char</span>* dist_name, <span class="keyword">void</span>* params,</span><br><span class="line">                     <span class="keyword">const</span> <span class="keyword">char</span>* param_name, <span class="keyword">void</span>* value);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Retrieves a blocksize value suitable to report in stat() */</span></span><br><span class="line">    PVFS_size (*get_blksize)(<span class="keyword">void</span>* params);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Stores parameters in lebf memory at pptr */</span></span><br><span class="line">    <span class="keyword">void</span> (*encode_lebf)(<span class="keyword">char</span> **pptr, <span class="keyword">void</span>* params);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* Restores parameters in lebf memory at pptr */</span></span><br><span class="line">    <span class="keyword">void</span> (*decode_lebf)(<span class="keyword">char</span> **pptr, <span class="keyword">void</span>* params);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Called when the distribution is registered */</span></span><br><span class="line">    <span class="keyword">void</span> (*registration_init)(<span class="keyword">void</span>* params);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">char</span> *(*params_string)(<span class="keyword">void</span> *params);</span><br><span class="line">&#125; PINT_dist_methods;</span><br></pre></td></tr></table></figure>
+<p>PINT_flow_post()  是flow发送的函数。BMI_post_send_list()发送</p>
+<p>服务端io_send_ack() 到客户端。之后客户端收到这个ack后，服务端客户端开始传输数据。</p>
+<p>trove里面有三种模式：null aio(默认) directio</p>
+<p>数据结构及函数指针的定义在trove-mgmt.c中。</p>
+<p>貌似比较重要的几个文件dbpf-alt-aio.c,dbpf-bstream-aio.c,dbpf-bstream.c,dbpf-context.c,dbpf-collection.c,dbpf-mgmt.c<br>dbpf-op-queue.c,dbpf-op.c,dbpf-sync.c,dbpf-thread.c</p>
+<p><strong>dbpf-alt-aio.c</strong>包含两个数据结构的初始化，<code>alt_lio_thread</code>会被调用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">dbpf_aio_ops</span> <span class="title">alt_aio_ops</span> =</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    alt_aio_read,   <span class="comment">/*这几个函数都是空函数*/</span></span><br><span class="line">    alt_aio_write,</span><br><span class="line">    alt_lio_listio,  <span class="comment">/*不是空函数，不清楚会不会被调用*/</span></span><br><span class="line">    alt_aio_error,</span><br><span class="line">    alt_aio_return,</span><br><span class="line">    alt_aio_cancel,</span><br><span class="line">    alt_aio_suspend,</span><br><span class="line">    alt_aio_fsync</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TROVE_bstream_ops</span> <span class="title">alt_aio_bstream_ops</span> =</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    dbpf_bstream_read_at,</span><br><span class="line">    dbpf_bstream_write_at,</span><br><span class="line">    dbpf_bstream_resize,</span><br><span class="line">    dbpf_bstream_validate,</span><br><span class="line">    alt_aio_bstream_read_list,   <span class="comment">/*该函数被调用，调用dbpf_bstream_rw_list*/</span></span><br><span class="line">    alt_aio_bstream_write_list,</span><br><span class="line">    dbpf_bstream_flush,</span><br><span class="line">    <span class="literal">NULL</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>dbpf-bstream-aio.c</strong>中包含函数：<code>dbpf_bstream_listio_convert</code>,会被调用。</p>
+<p><strong>dbpf-bstream.c</strong>中包含两个数据结构的初始化。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">dbpf_aio_ops</span> <span class="title">aio_ops</span> =</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    aio_read,</span><br><span class="line">    aio_write,</span><br><span class="line">    lio_listio,</span><br><span class="line">    aio_error,</span><br><span class="line">    aio_return,</span><br><span class="line">    aio_cancel,</span><br><span class="line">    aio_suspend,</span><br><span class="line">    aio_fsync</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TROVE_bstream_ops</span> <span class="title">dbpf_bstream_ops</span> =</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    dbpf_bstream_read_at,</span><br><span class="line">    dbpf_bstream_write_at,</span><br><span class="line">    dbpf_bstream_resize,</span><br><span class="line">    dbpf_bstream_validate,</span><br><span class="line">    dbpf_bstream_read_list,        <span class="comment">/*该函数没有被调用。调用dbpf_bstream_rw_list*/</span></span><br><span class="line">    dbpf_bstream_write_list,</span><br><span class="line">    dbpf_bstream_flush,</span><br><span class="line">    dbpf_bstream_cancel</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>dbpf-op</strong>中dbpf_queued_op_init被调用。</p>
+<p><strong>dbpf-sync</strong>中dbpf_sync_coalesce_enqueue被调用。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/I-O/" rel="tag"># I/O</a>
+          
+            <a href="/tags/Parallel-I-O/" rel="tag"># Parallel-I/O</a>
+          
+            <a href="/tags/PVFS/" rel="tag"># PVFS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/03/interesting-nanking/" rel="next" title="去南京">
+                <i class="fa fa-chevron-left"></i> 去南京
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/07/19/tshirt/" rel="prev" title="实验室文化衫设计">
+                实验室文化衫设计 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">大栗子</p>
+              <p class="site-description motion-element" itemprop="description">IT,Life,逗比.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、俯瞰"><span class="nav-number">1.</span> <span class="nav-text">1、俯瞰</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-主要术语介绍"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 主要术语介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-BMI-设计"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 BMI 设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-状态机"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 状态机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-PVFS-request"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 PVFS request</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、MPI—IO-ADIO"><span class="nav-number">2.</span> <span class="nav-text">2、MPI—IO ADIO</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">大栗子</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz',
+        appKey: 'mn4p5kSMuj83sTfEmFPEYL4d',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'20' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz", "mn4p5kSMuj83sTfEmFPEYL4d");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

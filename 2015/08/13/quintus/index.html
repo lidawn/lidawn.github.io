@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Quintus,JavaScript," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近不务正业地研究了一下JavaScript游戏，选择了其中一款游戏引擎quintus。">
+<meta name="keywords" content="Quintus,JavaScript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个quintus游戏引擎例子">
+<meta property="og:url" content="http://lidawn.github.io/2015/08/13//quintus//index.html">
+<meta property="og:site_name" content="大栗子菜市场">
+<meta property="og:description" content="最近不务正业地研究了一下JavaScript游戏，选择了其中一款游戏引擎quintus。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FikrO1.png">
+<meta property="og:updated_time" content="2019-01-06T03:27:45.547Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一个quintus游戏引擎例子">
+<meta name="twitter:description" content="最近不务正业地研究了一下JavaScript游戏，选择了其中一款游戏引擎quintus。">
+<meta name="twitter:image" content="https://s1.ax1x.com/2018/11/22/FikrO1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lidawn.github.io/2015/08/13//quintus//"/>
+
+
+
+
+
+  <title>一个quintus游戏引擎例子 | 大栗子菜市场</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大栗子菜市场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lidawn.github.io/2015/08/13/quintus/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="大栗子">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大栗子菜市场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">一个quintus游戏引擎例子</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-13T00:00:00+08:00">
+                2015-08-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/08/13/quintus/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2015/08/13/quintus/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2015/08/13/quintus/" class="leancloud_visitors" data-flag-title="一个quintus游戏引擎例子">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近不务正业地研究了一下JavaScript游戏，选择了其中一款游戏引擎quintus。</p>
+<a id="more"></a>
+<h2 id="quintus简介"><a href="#quintus简介" class="headerlink" title="quintus简介"></a>quintus简介</h2><p>quintus是一款开源的HTML5游戏引擎，其核心模块包括：</p>
+<ol>
+<li><p>Sprites：通过继承Sprites类，你可以创建你的游戏角色。</p>
+</li>
+<li><p>Scenes：场景类，是一个可以重复利用的元素，通过继承Scene，你可以设置游戏的关卡等。</p>
+</li>
+<li><p>Input and Touch： 该模块用来监听键盘、鼠标、触摸事件。</p>
+</li>
+<li><p>Animation： 动画类，为Sprite定制动画。</p>
+</li>
+<li><p>Audio: 处理声音。</p>
+</li>
+<li><p>2D：2D模块主要是描述一个简单的动力学模型，如你的Sprite加入了2D模块，那么你的Sprite就会按照重力效应自动往下掉。</p>
+</li>
+<li><p>UI：用来创建按钮等元素。</p>
+</li>
+</ol>
+<h2 id="一个例子"><a href="#一个例子" class="headerlink" title="一个例子"></a>一个例子</h2><p><a href="http://www.html5quintus.com/quintus/examples/runner/" target="_blank" rel="noopener"><strong>Runner</strong></a></p>
+<p><a href="http://www.html5quintus.com/quintus/examples/runner/runner.js" target="_blank" rel="noopener"><strong>源代码</strong></a></p>
+<p>这是官网给出的一个例子，通过研究这个例子的源码可以对quintus有个初步的了解。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><h4 id="奔跑的小精灵"><a href="#奔跑的小精灵" class="headerlink" title="奔跑的小精灵"></a>奔跑的小精灵</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">Q.Sprite.extend(<span class="string">"Player"</span>,&#123;</span><br><span class="line">  		init: <span class="function"><span class="keyword">function</span>(<span class="params">p</span>) </span>&#123;</span><br><span class="line">    		<span class="keyword">this</span>._super(p,&#123;</span><br><span class="line">      			sheet: <span class="string">"player"</span>,	<span class="comment">//相当于asset</span></span><br><span class="line">      			sprite: <span class="string">"player"</span>,  <span class="comment">//动画</span></span><br><span class="line">      			collisionMask: SPRITE\_BOX, <span class="comment">//检测与type为SPRITE_BOX的对象的碰撞,</span></span><br><span class="line">      			x: <span class="number">40</span>, <span class="comment">//起始位置</span></span><br><span class="line">      			y: <span class="number">555</span>,</span><br><span class="line">      			<span class="comment">//碰撞监测区域</span></span><br><span class="line">      			standingPoints: [ [ <span class="number">-16</span>, <span class="number">44</span>], [ <span class="number">-23</span>, <span class="number">35</span> ], [<span class="number">-23</span>,<span class="number">-48</span>], [<span class="number">23</span>,<span class="number">-48</span>], [<span class="number">23</span>, <span class="number">35</span> ], [ <span class="number">16</span>, <span class="number">44</span> ]],</span><br><span class="line">      			duckingPoints : [ [ <span class="number">-16</span>, <span class="number">44</span>], [ <span class="number">-23</span>, <span class="number">35</span> ], [<span class="number">-23</span>,<span class="number">-10</span>], [<span class="number">23</span>,<span class="number">-10</span>], [<span class="number">23</span>, <span class="number">35</span> ], [ <span class="number">16</span>, <span class="number">44</span> ]],</span><br><span class="line">      			speed: <span class="number">500</span>,</span><br><span class="line">      			jump: <span class="number">-1000</span></span><br><span class="line">    		&#125;);</span><br><span class="line">    		<span class="comment">//碰撞边缘</span></span><br><span class="line">    		<span class="keyword">this</span>.p.points = <span class="keyword">this</span>.p.standingPoints;</span><br><span class="line">    		<span class="keyword">this</span>.add(<span class="string">"2d, animation"</span>);</span><br><span class="line">  		&#125;,</span><br><span class="line">  		step: <span class="function"><span class="keyword">function</span>(<span class="params">dt</span>) </span>&#123;</span><br><span class="line">  			<span class="comment">//控制横向移动</span></span><br><span class="line">    		<span class="keyword">this</span>.p.vx += (<span class="keyword">this</span>.p.speed - <span class="keyword">this</span>.p.vx)/<span class="number">4</span>;</span><br><span class="line">    		<span class="comment">//如果不控制就会下坠，因为加了2D模块</span></span><br><span class="line">    		<span class="keyword">if</span>(<span class="keyword">this</span>.p.y &gt; <span class="number">555</span>) &#123;</span><br><span class="line">      			<span class="keyword">this</span>.p.y = <span class="number">555</span>;</span><br><span class="line">      			<span class="keyword">this</span>.p.landed = <span class="number">1</span>;</span><br><span class="line">      			<span class="keyword">this</span>.p.vy = <span class="number">0</span>;</span><br><span class="line">    		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    			<span class="comment">//在空中</span></span><br><span class="line">      			<span class="keyword">this</span>.p.landed = <span class="number">0</span>;</span><br><span class="line">    		&#125;</span><br><span class="line">    		<span class="keyword">if</span>(Q.inputs[<span class="string">'up'</span>] &amp;&amp; <span class="keyword">this</span>.p.landed &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      			<span class="keyword">this</span>.p.vy = <span class="keyword">this</span>.p.jump;</span><br><span class="line">    		&#125; </span><br><span class="line">    		<span class="keyword">this</span>.p.points = <span class="keyword">this</span>.p.standingPoints;</span><br><span class="line">    		<span class="keyword">if</span>(<span class="keyword">this</span>.p.landed) &#123;</span><br><span class="line">    			<span class="comment">//按键控制</span></span><br><span class="line">    	  		<span class="keyword">if</span>(Q.inputs[<span class="string">'down'</span>]) &#123; </span><br><span class="line">    	  			<span class="comment">//play的参数是一个animation</span></span><br><span class="line">    	    		<span class="keyword">this</span>.play(<span class="string">"duck_right"</span>);</span><br><span class="line">    	    		<span class="keyword">this</span>.p.points = <span class="keyword">this</span>.p.duckingPoints;</span><br><span class="line">    	  		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    	    		<span class="keyword">this</span>.play(<span class="string">"walk_right"</span>);</span><br><span class="line">    	  		&#125;</span><br><span class="line">    		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    	  		<span class="keyword">this</span>.play(<span class="string">"jump_right"</span>);</span><br><span class="line">    		&#125;</span><br><span class="line">    		<span class="comment">//将palyer固定在屏幕的一个位置上</span></span><br><span class="line">    		<span class="keyword">this</span>.stage.viewport.centerOn(<span class="keyword">this</span>.p.x + <span class="number">300</span>, <span class="number">400</span> );</span><br><span class="line">  		&#125;</span><br><span class="line">	&#125;);</span><br></pre></td></tr></table></figure>
+<p><code>Player</code>继承了<code>Sprite</code>类，覆盖了<code>init</code>方法和<code>step</code>方法，init方法中有很多默认的属性，如<code>x,y,cx,cy</code>等等，值得注意的是<code>sheet，sprite，collisionMask，standingPoints，duckingPoints</code>这几个属性。</p>
+<p>sheet相当于图片类，是一种特殊的图片加载器，定义了精灵的外形，此处用到的sheet是player，后面会有介绍。</p>
+<p>sprite是动作结合，定义的几个基础的动作，此处用到的sprite是player，后面介绍。</p>
+<p>collisionMask是碰撞检测的标识，此处表示与type为SPRITE_BOX的对象的碰撞会被检测到，而后面的箱子的type就是SPRITE_BOX。</p>
+<p>standingPoints和duckingPoints是碰撞检测区域，是一个多边形，数组里面的二位坐标分别表示多边形的顶点，顺时针表示，一个是站着时候的多边形，一个是蹲着时候的多边形。</p>
+<p>step方法是表示精灵随时间的变化，把dt看做一个不停自增的变量就可以了。</p>
+<h4 id="砸人的盒子"><a href="#砸人的盒子" class="headerlink" title="砸人的盒子"></a>砸人的盒子</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">Q.Sprite.extend(<span class="string">"Box"</span>,&#123;</span><br><span class="line">  		init: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    		<span class="keyword">var</span> levels = [ <span class="number">565</span>, <span class="number">540</span>, <span class="number">500</span> ];</span><br><span class="line">    		<span class="comment">//获取player</span></span><br><span class="line">    		<span class="keyword">var</span> player = Q(<span class="string">"Player"</span>).first();</span><br><span class="line">    		<span class="keyword">this</span>._super(&#123;</span><br><span class="line">    		<span class="comment">//必须相对player</span></span><br><span class="line">    		  x: player.p.x + Q.width + <span class="number">50</span>,</span><br><span class="line">    		  y: levels[<span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * <span class="number">3</span>)],</span><br><span class="line">    		  <span class="comment">//选择哪一帧动画，2帧</span></span><br><span class="line">    		  frame: <span class="built_in">Math</span>.random() &lt; <span class="number">0.5</span> ? <span class="number">1</span> : <span class="number">0</span>,</span><br><span class="line">    		  <span class="comment">//放大</span></span><br><span class="line">    		  scale: <span class="number">2</span>,</span><br><span class="line">    		  type: SPRITE_BOX,</span><br><span class="line">    		  sheet: <span class="string">"crates"</span>,</span><br><span class="line">    		  vx: <span class="number">-600</span> + <span class="number">200</span> * <span class="built_in">Math</span>.random(),  <span class="comment">//(-400~-600)</span></span><br><span class="line">    		  vy: <span class="number">0</span>,</span><br><span class="line">    		  ay: <span class="number">0</span>,</span><br><span class="line">    		  <span class="comment">//变量</span></span><br><span class="line">    		  theta: (<span class="number">300</span> * <span class="built_in">Math</span>.random() + <span class="number">200</span>) * (<span class="built_in">Math</span>.random() &lt; <span class="number">0.5</span> ? <span class="number">1</span> : <span class="number">-1</span>),</span><br><span class="line">    		&#125;);</span><br><span class="line">    		<span class="keyword">this</span>.on(<span class="string">"hit"</span>);</span><br><span class="line">  		&#125;,</span><br><span class="line">  		step: <span class="function"><span class="keyword">function</span>(<span class="params">dt</span>) </span>&#123;</span><br><span class="line">  		  <span class="keyword">this</span>.p.x += <span class="keyword">this</span>.p.vx * dt;</span><br><span class="line">  		  <span class="comment">//主要是撞击之后</span></span><br><span class="line">  		  <span class="keyword">this</span>.p.vy += <span class="keyword">this</span>.p.ay * dt;</span><br><span class="line">  		  <span class="keyword">this</span>.p.y += <span class="keyword">this</span>.p.vy * dt;</span><br><span class="line">  		  <span class="comment">//不是贴地滑行</span></span><br><span class="line">  		  <span class="keyword">if</span>(<span class="keyword">this</span>.p.y != <span class="number">565</span>) &#123;</span><br><span class="line">  		    <span class="keyword">this</span>.p.angle += <span class="keyword">this</span>.p.theta * dt;</span><br><span class="line">  		  &#125;</span><br><span class="line">  		  <span class="comment">//落到画布之外，销毁</span></span><br><span class="line">  		  <span class="keyword">if</span>(<span class="keyword">this</span>.p.y &gt; <span class="number">800</span>) &#123; <span class="keyword">this</span>.destroy(); &#125;</span><br><span class="line">  		&#125;,</span><br><span class="line">  		<span class="comment">//hit事件</span></span><br><span class="line">  		hit: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    		<span class="keyword">this</span>.p.type = <span class="number">0</span>;</span><br><span class="line">    		<span class="comment">//碰撞之后便不再能够碰撞</span></span><br><span class="line">    		<span class="comment">//this.p.collisionMask = Q.SPRITE_NONE;</span></span><br><span class="line">    		<span class="keyword">this</span>.p.type = Q.SPRITE_NONE;</span><br><span class="line">    		<span class="keyword">this</span>.p.vx = <span class="number">200</span>;</span><br><span class="line">    		<span class="keyword">this</span>.p.ay = <span class="number">400</span>;</span><br><span class="line">    		<span class="keyword">this</span>.p.vy = <span class="number">-300</span>;</span><br><span class="line">    		<span class="comment">//透明度</span></span><br><span class="line">    		<span class="keyword">this</span>.p.opacity = <span class="number">0.5</span>;</span><br><span class="line">  		&#125;</span><br><span class="line">	&#125;);</span><br></pre></td></tr></table></figure>
+<p>盒子同样是由init和step方法，同时多了一个hit方法，hit是一种碰撞事件，通过<code>this.add(&quot;hit&quot;)</code>与box绑定了。</p>
+<h4 id="盒子投掷器"><a href="#盒子投掷器" class="headerlink" title="盒子投掷器"></a>盒子投掷器</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Q.GameObject.extend(<span class="string">"BoxThrower"</span>,&#123;</span><br><span class="line">	  init: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	    <span class="keyword">this</span>.p = &#123;</span><br><span class="line">	      launchDelay: <span class="number">0.75</span>,</span><br><span class="line">	      launchRandom: <span class="number">1</span>,</span><br><span class="line">	      launch: <span class="number">2</span></span><br><span class="line">	    &#125;</span><br><span class="line">	  &#125;,</span><br><span class="line">	  update: <span class="function"><span class="keyword">function</span>(<span class="params">dt</span>) </span>&#123;</span><br><span class="line">	    <span class="keyword">this</span>.p.launch -= dt;</span><br><span class="line">	    <span class="comment">//console.log(this.p.launch);</span></span><br><span class="line">	    <span class="keyword">if</span>(<span class="keyword">this</span>.p.launch &lt; <span class="number">0</span>) &#123;</span><br><span class="line">	      <span class="keyword">this</span>.stage.insert(<span class="keyword">new</span> Q.Box());</span><br><span class="line">	      <span class="keyword">this</span>.p.launch = <span class="keyword">this</span>.p.launchDelay + <span class="keyword">this</span>.p.launchRandom * <span class="built_in">Math</span>.random();</span><br><span class="line">	    &#125;</span><br><span class="line">	  &#125;</span><br><span class="line">	&#125;);</span><br></pre></td></tr></table></figure>
+<p>盒子投掷器是控制盒子出现的一个类,继承的是<code>GameObject</code>，有<code>init</code>方法和<code>update</code>方法，update方法与step方法类似，是与时间变化有关的方法，不过update做的事情是随时间（dt）变化不停地重绘画面，这里<code>this.stage.insert(new Q.Box())</code>，随着dt的自增，向画布里面插入新的box对象。</p>
+<h4 id="游戏场景"><a href="#游戏场景" class="headerlink" title="游戏场景"></a>游戏场景</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Q.scene(<span class="string">"level1"</span>,<span class="function"><span class="keyword">function</span>(<span class="params">stage</span>) </span>&#123;</span><br><span class="line">  		stage.insert(<span class="keyword">new</span> Q.Repeater(&#123; <span class="attr">asset</span>: <span class="string">"background-wall.png"</span>,</span><br><span class="line">                                speedX: <span class="number">0.5</span> &#125;));</span><br><span class="line">  		<span class="comment">//x，y决定放置的位置</span></span><br><span class="line">  		stage.insert(<span class="keyword">new</span> Q.Repeater(&#123; <span class="attr">asset</span>: <span class="string">"background-floor.png"</span>,</span><br><span class="line">                                repeatY: <span class="literal">false</span>,</span><br><span class="line">                                repeatX: <span class="literal">true</span>,</span><br><span class="line">                                <span class="comment">//视差，与player的相对速度</span></span><br><span class="line">                                speedX: <span class="number">1</span>,</span><br><span class="line">                                y: <span class="number">300</span> &#125;));</span><br><span class="line">  		stage.insert(<span class="keyword">new</span> Q.BoxThrower());</span><br><span class="line">  		stage.insert(<span class="keyword">new</span> Q.Player());</span><br><span class="line">  		<span class="comment">//前面使用了viewport固定player</span></span><br><span class="line">  		stage.add(<span class="string">"viewport"</span>);</span><br><span class="line">	&#125;);</span><br></pre></td></tr></table></figure>
+<p>游戏场景相当于一个关卡，一个舞台，就是游戏的主画面，这里向这个scene（level1）中插入了背景，地板，盒子投掷器，精灵。</p>
+<h3 id="游戏加载"><a href="#游戏加载" class="headerlink" title="游戏加载"></a>游戏加载</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Q.load(<span class="string">"player.png, background-wall.png, background-floor.png, crates.png"</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="comment">//start the sprites at x=0 y=1 cols</span></span><br><span class="line">    	Q.sheet(<span class="string">"player"</span>,<span class="string">"player.png"</span>,&#123;<span class="attr">sx</span>:<span class="number">0</span>,<span class="attr">sy</span>:<span class="number">1</span>,<span class="attr">cols</span>:<span class="number">18</span>,<span class="attr">tilew</span>:<span class="number">72</span>,<span class="attr">tileh</span>:<span class="number">97</span>,<span class="attr">frames</span>:<span class="number">18</span>&#125;);</span><br><span class="line">    	Q.sheet(<span class="string">"crates"</span>,<span class="string">"crates.png"</span>,&#123;<span class="attr">sx</span>:<span class="number">0</span>,<span class="attr">sy</span>:<span class="number">0</span>,<span class="attr">cols</span>:<span class="number">2</span>,<span class="attr">tilew</span>:<span class="number">32</span>,<span class="attr">tileh</span>:<span class="number">32</span>,<span class="attr">frames</span>:<span class="number">2</span>&#125;);</span><br><span class="line">    	Q.animations(<span class="string">"player"</span>, &#123;</span><br><span class="line">      		walk_right: &#123; <span class="attr">frames</span>: [<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>], <span class="attr">rate</span>: <span class="number">1</span>/<span class="number">15</span>, <span class="attr">flip</span>: <span class="literal">false</span>, <span class="attr">loop</span>: <span class="literal">true</span> &#125;,</span><br><span class="line">      		jump_right: &#123; <span class="attr">frames</span>: [<span class="number">13</span>], <span class="attr">rate</span>: <span class="number">1</span>/<span class="number">10</span>, <span class="attr">flip</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      		stand_right: &#123; <span class="attr">frames</span>:[<span class="number">14</span>], <span class="attr">rate</span>: <span class="number">1</span>/<span class="number">10</span>, <span class="attr">flip</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      		duck_right: &#123; <span class="attr">frames</span>: [<span class="number">15</span>], <span class="attr">rate</span>: <span class="number">1</span>/<span class="number">10</span>, <span class="attr">flip</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">    	&#125;);</span><br><span class="line">    	Q.stageScene(<span class="string">"level1"</span>);</span><br><span class="line">    	Q.debug = <span class="literal">true</span>;</span><br><span class="line">	&#125;);</span><br></pre></td></tr></table></figure>
+<p>最后一步就是游戏加载，加载图片，并通过<code>Q.stageScene(&quot;level1&quot;)</code>将第一关加入到游戏中。</p>
+<p>定义两个sheet,一个是player，使用的图片是”player.png”,是一种元素集，总共有18个分解图形，依次取72*97大小作为一帧图形。</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/FikrO1.png" alt="player.png"></p>
+<p><code>Q.animations(&quot;player&quot;,{})</code>定义的前面提到的player对应的sprite，有四个动作，以walk_right为例，使用的是player（sheet）里面的0-10帧图形，帧切换速率是1/15，即1/15s切换一次，翻转为false，循环为true。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="http://donmik.com/en/how-to-make-a-shootem-up-with-quintus-part-1/" target="_blank" rel="noopener">http://donmik.com/en/how-to-make-a-shootem-up-with-quintus-part-1/</a></li>
+<li><a href="http://www.remcodraijer.nl/quintus/tutorial.html" target="_blank" rel="noopener">http://www.remcodraijer.nl/quintus/tutorial.html</a></li>
+<li><a href="http://www.html5quintus.com/guide/intro.md" target="_blank" rel="noopener">http://www.html5quintus.com/guide/intro.md</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Quintus/" rel="tag"># Quintus</a>
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/07/19/tshirt/" rel="next" title="实验室文化衫设计">
+                <i class="fa fa-chevron-left"></i> 实验室文化衫设计
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/10/27/file-lock/" rel="prev" title="底层I/O之文件锁">
+                底层I/O之文件锁 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">大栗子</p>
+              <p class="site-description motion-element" itemprop="description">IT,Life,逗比.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#quintus简介"><span class="nav-number">1.</span> <span class="nav-text">quintus简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个例子"><span class="nav-number">2.</span> <span class="nav-text">一个例子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">3.</span> <span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#奔跑的小精灵"><span class="nav-number">3.0.1.</span> <span class="nav-text">奔跑的小精灵</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#砸人的盒子"><span class="nav-number">3.0.2.</span> <span class="nav-text">砸人的盒子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#盒子投掷器"><span class="nav-number">3.0.3.</span> <span class="nav-text">盒子投掷器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#游戏场景"><span class="nav-number">3.0.4.</span> <span class="nav-text">游戏场景</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#游戏加载"><span class="nav-number">3.1.</span> <span class="nav-text">游戏加载</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">大栗子</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz',
+        appKey: 'mn4p5kSMuj83sTfEmFPEYL4d',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'20' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz", "mn4p5kSMuj83sTfEmFPEYL4d");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

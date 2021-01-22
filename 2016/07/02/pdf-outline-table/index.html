@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Python," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这两天帮楠妹做了一点事情，涉及从PDF中提取表格，使用了两个开源工具 PDFMiner 和 PyPDF2，记录一下提取过程。">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="维护地球和平之 - 利用 Python 从PDF中提取目录和表格">
+<meta property="og:url" content="http://lidawn.github.io/2016/07/02//pdf-outline-table//index.html">
+<meta property="og:site_name" content="大栗子菜市场">
+<meta property="og:description" content="这两天帮楠妹做了一点事情，涉及从PDF中提取表格，使用了两个开源工具 PDFMiner 和 PyPDF2，记录一下提取过程。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/Fik8Lq.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FikJe0.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/22/FikYwV.png">
+<meta property="og:updated_time" content="2019-01-06T03:28:32.274Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="维护地球和平之 - 利用 Python 从PDF中提取目录和表格">
+<meta name="twitter:description" content="这两天帮楠妹做了一点事情，涉及从PDF中提取表格，使用了两个开源工具 PDFMiner 和 PyPDF2，记录一下提取过程。">
+<meta name="twitter:image" content="https://s1.ax1x.com/2018/11/22/Fik8Lq.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lidawn.github.io/2016/07/02//pdf-outline-table//"/>
+
+
+
+
+
+  <title>维护地球和平之 - 利用 Python 从PDF中提取目录和表格 | 大栗子菜市场</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大栗子菜市场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lidawn.github.io/2016/07/02/pdf-outline-table/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="大栗子">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大栗子菜市场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">维护地球和平之 - 利用 Python 从PDF中提取目录和表格</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-02T00:00:00+08:00">
+                2016-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/07/02/pdf-outline-table/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2016/07/02/pdf-outline-table/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2016/07/02/pdf-outline-table/" class="leancloud_visitors" data-flag-title="维护地球和平之 - 利用 Python 从PDF中提取目录和表格">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这两天帮楠妹做了一点事情，涉及从PDF中提取表格，使用了两个开源工具 <strong><a href="https://github.com/euske/pdfminer" target="_blank" rel="noopener">PDFMiner</a></strong> 和 <strong><a href="https://github.com/mstamy2/PyPDF2" target="_blank" rel="noopener">PyPDF2</a></strong>，记录一下提取过程。</p>
+<a id="more"></a>
+<p>具体是需要从一个网站上下载 28000+ 个PDF，每个PDF大概150页，每个PDF只提取一个表格的信息。</p>
+<p>下载PDF这个事情用 <strong><a href="http://lidawn.github.io/python-baidu-image-crawler/">爬虫</a></strong> 就可以搞定了，但是提取PDF就比较麻烦了。并没有直接的工具可以将PDF中的表格导出，所以只能用最笨的方法，提取文字再恢复成表格。</p>
+<h2 id="根据自带outline提取页码"><a href="#根据自带outline提取页码" class="headerlink" title="根据自带outline提取页码"></a>根据自带outline提取页码</h2><p>提取文字需要定位文字，不然150多页的PDF遍历起来也是很费劲。但是 PDFMiner 支持提取提纲，但提纲对应的destination没什么卵用。</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/Fik8Lq.png" alt="提纲"></p>
+<blockquote>
+<p>Some PDF documents use page numbers as destinations, while others use page numbers and the physical location within the page. Since PDF does not have a logical structure, and it does not provide a way to refer to any in-page object from the outside, there’s no way to tell exactly which part of text these destinations are referring to.</p>
+</blockquote>
+<p>于是搜索了一下其他方法，找到了StackOverflow上一个 <strong><a href="http://stackoverflow.com/questions/1918420/split-a-pdf-based-on-outline" target="_blank" rel="noopener">回答</a></strong>，这里我直接把代码贴上来了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#从outline获取页码 返回列表</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PdfOutline</span><span class="params">(PdfFileReader)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getDestinationPageNumbers</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_setup_outline_page_ids</span><span class="params">(outline, _result=None)</span>:</span></span><br><span class="line">            <span class="keyword">if</span> _result <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                _result = &#123;&#125;</span><br><span class="line">            <span class="keyword">for</span> obj <span class="keyword">in</span> outline:</span><br><span class="line">                <span class="keyword">if</span> isinstance(obj, Destination):</span><br><span class="line">                    _result[(id(obj), obj.title)] = obj.page.idnum</span><br><span class="line">                <span class="keyword">elif</span> isinstance(obj, list):</span><br><span class="line">                    _setup_outline_page_ids(obj, _result)</span><br><span class="line">            <span class="keyword">return</span> _result</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_setup_page_id_to_num</span><span class="params">(pages=None, _result=None, _num_pages=None)</span>:</span></span><br><span class="line">            <span class="keyword">if</span> _result <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                _result = &#123;&#125;</span><br><span class="line">            <span class="keyword">if</span> pages <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                _num_pages = []</span><br><span class="line">                pages = self.trailer[<span class="string">"/Root"</span>].getObject()[<span class="string">"/Pages"</span>].getObject()</span><br><span class="line">            t = pages[<span class="string">"/Type"</span>]</span><br><span class="line">            <span class="keyword">if</span> t == <span class="string">"/Pages"</span>:</span><br><span class="line">                <span class="keyword">for</span> page <span class="keyword">in</span> pages[<span class="string">"/Kids"</span>]:</span><br><span class="line">                    _result[page.idnum] = len(_num_pages)</span><br><span class="line">                    _setup_page_id_to_num(page.getObject(), _result, _num_pages)</span><br><span class="line">            <span class="keyword">elif</span> t == <span class="string">"/Page"</span>:</span><br><span class="line">                _num_pages.append(<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> _result</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            outline_page_ids = _setup_outline_page_ids(self.getOutlines())</span><br><span class="line">            page_id_to_page_numbers = _setup_page_id_to_num()</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">        result = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> (_, title), page_idnum <span class="keyword">in</span> outline_page_ids.iteritems():</span><br><span class="line">            <span class="keyword">if</span> isinstance(title, TextStringObject):</span><br><span class="line">                <span class="comment">#title = title.encode('utf-8')</span></span><br><span class="line">                <span class="keyword">pass</span></span><br><span class="line">            result[title] = page_id_to_page_numbers.get(page_idnum, <span class="string">'???'</span>)</span><br><span class="line">        <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+<p>这段代码会返回一个页码列表，是深度优先的顺序，然后根据想要的位置找到列表的页码索引便可以得到页码了。</p>
+<h2 id="提取表格"><a href="#提取表格" class="headerlink" title="提取表格"></a>提取表格</h2><p>根据正文提取内容并不是直接抓就可以了，PDF的生成渲染机制（暂且这么称呼）很奇怪，表格行列出现的顺序甚至会出现完全随机的情况，所以基本用规律或者正则表达式页很难提取。</p>
+<blockquote>
+<p>PDF is evil. Although it is called a PDF “document”, it’s nothing like Word or HTML document. PDF is more like a graphic representation. PDF contents are just a bunch of instructions that tell how to place the stuff at each exact position on a display or paper. In most cases, it has no logical structure such as sentences or paragraphs and it cannot adapt itself when the paper size changes. PDFMiner attempts to reconstruct some of those structures by guessing from its positioning, but there’s nothing guaranteed to work. Ugly, I know. Again, PDF is evil.</p>
+</blockquote>
+<p><img src="https://s1.ax1x.com/2018/11/22/FikJe0.png" alt="坐标"></p>
+<p>还好天无绝人之路，这篇 <strong><a href="https://blog.scraperwiki.com/2012/06/pdf-table-extraction-of-a-table/" target="_blank" rel="noopener">博客</a></strong> 启发了我。 其实原理就是每个pdf里的一段文字都是一个对象，对象通过坐标标示位置，然后附带内容。每一个PDF页都是一个平面，其中左下角是0，x轴向右延伸，y轴向上延伸。先通过某些文字的内容确定表格的坐标,这里要根据自己的内容选取，例如我的表格是这样的：</p>
+<p><img src="https://s1.ax1x.com/2018/11/22/FikYwV.png" alt="表格"></p>
+<p>我选取了8个x值，4个y值。然后将内容按照y值降序排列，根据x的值每一列地选取。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#x0          x1       x2          x3        x4       x5   x6         x7</span></span><br><span class="line"><span class="comment">#-------------------------------------------------------------------------y0</span></span><br><span class="line"><span class="comment">#|独立董事姓名|本报告期应 |现场出席次数|以通讯方式|委托出席|缺席|是否连续两次|</span></span><br><span class="line"><span class="comment">#|           |董事会次数 |           |         |       |    |未亲自参加  |</span></span><br><span class="line"><span class="comment">#-------------------------------------------------------------------------y1</span></span><br><span class="line"><span class="comment">#明</span></span><br><span class="line"><span class="comment">#-------------------------------------------------------------------------</span></span><br><span class="line"><span class="comment">#楠</span></span><br><span class="line"><span class="comment">#-------------------------------------------------------------------------y2</span></span><br><span class="line"><span class="comment">#独立董事列席股东大会</span></span><br><span class="line"><span class="comment">#-------------------------------------------------------------------------y3</span></span><br></pre></td></tr></table></figure>
+<p>方法很蠢，仅供参考：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pdfHandler</span><span class="params">(filetitle)</span>:</span></span><br><span class="line">    out = <span class="keyword">False</span> <span class="comment">#表示是否能够处理</span></span><br><span class="line">    pageIndex = <span class="number">0</span>  <span class="comment">#页码</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"parsing "</span>+filetitle+<span class="string">" extracting page number"</span></span><br><span class="line">    <span class="comment">#提取页码</span></span><br><span class="line">    fp = open(filetitle, <span class="string">'rb'</span>)</span><br><span class="line">    parser = PDFParser(fp)</span><br><span class="line">    <span class="comment"># Create a PDF document object that stores the document structure.</span></span><br><span class="line">    <span class="comment"># Supply the password for initialization.</span></span><br><span class="line">    password = <span class="string">''</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        document = PDFDocument(parser, password)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        fp.close()</span><br><span class="line">        <span class="comment">#print 'ee'</span></span><br><span class="line">        log.write(<span class="string">'open pdf document error '</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">    <span class="comment"># Check if the document allows text extraction. If not, abort.</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> document.is_extractable:</span><br><span class="line">        fp.close()</span><br><span class="line">        <span class="comment">#print 'ee'</span></span><br><span class="line">        log.write(<span class="string">'pdf document not extractable error '</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line"></span><br><span class="line">    pdf = PdfOutline(fp)</span><br><span class="line">    pageslist = []</span><br><span class="line">    rsrcmgr = PDFResourceManager()</span><br><span class="line">    laparams = LAParams()</span><br><span class="line">    device = PDFPageAggregator(rsrcmgr, laparams=laparams)</span><br><span class="line">    interpreter = PDFPageInterpreter(rsrcmgr, device)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> p,t <span class="keyword">in</span> sorted([(v,k) <span class="keyword">for</span> k,v <span class="keyword">in</span> pdf.getDestinationPageNumbers().iteritems()]):</span><br><span class="line">        pageslist.append(p)</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="comment">#get pageIndex</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"parsing "</span>+filetitle+<span class="string">" extracting table"</span></span><br><span class="line">    </span><br><span class="line">    start = <span class="keyword">False</span></span><br><span class="line">    end = <span class="keyword">False</span></span><br><span class="line">        </span><br><span class="line">    firstpage = <span class="number">0</span></span><br><span class="line">    lastpage = <span class="number">0</span></span><br><span class="line">    namepage = <span class="number">0</span>  <span class="comment">#独立董事姓名 表头所在的page</span></span><br><span class="line">    pages = <span class="number">0</span></span><br><span class="line">    <span class="comment">#print 'pageIndex ',pageIndex</span></span><br><span class="line">    tableObjs = []</span><br><span class="line">    <span class="keyword">for</span> page <span class="keyword">in</span> PDFPage.create_pages(document):</span><br><span class="line">        pages+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> end:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span> pages&lt;pageIndex:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        interpreter.process_page(page)</span><br><span class="line">        <span class="comment"># layout 即为每一页</span></span><br><span class="line">        </span><br><span class="line">        layout = device.get_result()</span><br><span class="line">        </span><br><span class="line">        <span class="comment">#注意还要踢出表格分页的情况</span></span><br><span class="line">        <span class="keyword">for</span> obj <span class="keyword">in</span> layout:</span><br><span class="line">            <span class="keyword">if</span> isinstance(obj,LTTextBox) <span class="keyword">or</span> isinstance(obj,LTTextLine):</span><br><span class="line">                <span class="keyword">if</span> start :</span><br><span class="line">                    </span><br><span class="line">                    <span class="keyword">if</span> obj.get_text().find(<span class="string">u"独立董事姓名"</span>) !=<span class="number">-1</span>:</span><br><span class="line">                        namepage = pages</span><br><span class="line">                    <span class="keyword">elif</span> obj.get_text().find(<span class="string">u"独立董事列席股东大会次数"</span>) !=<span class="number">-1</span>:</span><br><span class="line">                        end = <span class="keyword">True</span></span><br><span class="line">                        lastpage = pages</span><br><span class="line">                        tableObjs.append(obj)</span><br><span class="line">                        <span class="keyword">break</span></span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        <span class="comment">#fpo.write(obj.get_text())</span></span><br><span class="line">                        tableObjs.append(obj)</span><br><span class="line">                        out = <span class="keyword">True</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">if</span> obj.get_text().find(<span class="string">u"独立董事出席董事会及股东大会的情况"</span>) !=<span class="number">-1</span>:</span><br><span class="line">                        start = <span class="keyword">True</span>  <span class="comment">#开始写下一行</span></span><br><span class="line">                        firstpage = pages</span><br><span class="line"></span><br><span class="line">    <span class="keyword">print</span> <span class="string">'firstpage,lastpage,namepage'</span>,firstpage,lastpage,namepage</span><br><span class="line">    <span class="keyword">if</span> namepage==<span class="number">0</span> <span class="keyword">or</span> lastpage==<span class="number">0</span> <span class="keyword">or</span> namepage!=lastpage:</span><br><span class="line">        <span class="comment">#log.write('table across two page, abort ')</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'table across two page, abort'</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">    </span><br><span class="line">    x0,x1,x2,x3,x4,x5,x6,x7 = <span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span></span><br><span class="line">    y0,y1,y2,y3 = <span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> tableObjs:</span><br><span class="line">        <span class="comment">#print i,i.get_text()</span></span><br><span class="line">        <span class="keyword">if</span> i.get_text().find(<span class="string">u"本报告期应"</span>)!=<span class="number">-1</span>:</span><br><span class="line">            y0 = i.y1</span><br><span class="line">            x1 = i.x0</span><br><span class="line">        <span class="keyword">elif</span> i.get_text().find(<span class="string">u"董事会次数"</span>)!=<span class="number">-1</span>:</span><br><span class="line">            y1 = i.y0</span><br><span class="line">        <span class="keyword">elif</span> i.get_text().find(<span class="string">u"独立董事列席股东大会"</span>)!=<span class="number">-1</span>:</span><br><span class="line">            y2 = i.y1</span><br><span class="line">            x0 = i.x0</span><br><span class="line">            y3 = i.y0</span><br><span class="line">        <span class="keyword">elif</span> i.get_text().find(<span class="string">u"现场出席次数"</span>)!=<span class="number">-1</span>:</span><br><span class="line">            x2 = i.x0</span><br><span class="line">        <span class="keyword">elif</span> i.get_text().find(<span class="string">u"以通讯方式"</span>)!=<span class="number">-1</span>:</span><br><span class="line">            x3 = i.x0</span><br><span class="line">        <span class="keyword">elif</span> i.get_text().find(<span class="string">u"委托出席"</span>)!=<span class="number">-1</span>:</span><br><span class="line">            x4 = i.x0</span><br><span class="line">        <span class="keyword">elif</span> i.get_text().find(<span class="string">u"缺席次数"</span>)!=<span class="number">-1</span>:</span><br><span class="line">            x5 = i.x0</span><br><span class="line">        <span class="keyword">elif</span> i.get_text().find(<span class="string">u"是否连续"</span>)!=<span class="number">-1</span>:</span><br><span class="line">            x6 = i.x0</span><br><span class="line">            x7 = i.x1</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> x0==<span class="number">0</span> <span class="keyword">or</span> x1==<span class="number">0</span> <span class="keyword">or</span> x2==<span class="number">0</span> <span class="keyword">or</span> x3==<span class="number">0</span> <span class="keyword">or</span> x4==<span class="number">0</span> <span class="keyword">or</span> x5==<span class="number">0</span> <span class="keyword">or</span> x6==<span class="number">0</span> <span class="keyword">or</span> x7==<span class="number">0</span>:</span><br><span class="line">        <span class="comment">#log.write('extract x error ')</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'extract x error '</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">    <span class="keyword">if</span>  y0==<span class="number">0</span> <span class="keyword">or</span> y1==<span class="number">0</span> <span class="keyword">or</span> y2==<span class="number">0</span> <span class="keyword">or</span> y3==<span class="number">0</span>:</span><br><span class="line">        <span class="comment">#log.write('extract y error ')</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">'extract y error '</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#以y坐标排列</span></span><br><span class="line">    tableObjs.sort(key=<span class="keyword">lambda</span> x:x.y1,reverse=<span class="keyword">True</span>)</span><br><span class="line">    <span class="comment">#print tableObjs</span></span><br><span class="line"></span><br><span class="line">    dudong = []</span><br><span class="line">    conj = <span class="keyword">False</span></span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> tableObjs:</span><br><span class="line">        <span class="keyword">if</span> item.y0 &gt;= y1:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="comment">#独立董事姓名</span></span><br><span class="line">        <span class="keyword">elif</span> item.x1 &lt; x1 :</span><br><span class="line">            dudong.append(item.get_text().replace(<span class="string">'\n'</span>,<span class="string">''</span>))</span><br><span class="line">        <span class="comment">#本报告期应参加董事会次数</span></span><br><span class="line">        <span class="keyword">elif</span> item.x0 &gt; x1 <span class="keyword">and</span> item.x1 &lt; x2:</span><br><span class="line">            dudong.append(item.get_text().replace(<span class="string">'\n'</span>,<span class="string">''</span>))</span><br><span class="line">        <span class="comment">#现场出席次数</span></span><br><span class="line">        <span class="keyword">elif</span> item.x0 &gt; x2 <span class="keyword">and</span> item.x1 &lt; x3:</span><br><span class="line">            dudong.append(item.get_text().replace(<span class="string">'\n'</span>,<span class="string">''</span>))</span><br><span class="line">        <span class="comment">#以通讯方式参加次数</span></span><br><span class="line">        <span class="keyword">elif</span> item.x0 &gt; x3 <span class="keyword">and</span> item.x1 &lt; x4:</span><br><span class="line">            dudong.append(item.get_text().replace(<span class="string">'\n'</span>,<span class="string">''</span>))</span><br><span class="line">        <span class="comment">#委托出席次数</span></span><br><span class="line">        <span class="keyword">elif</span> item.x0 &gt; x4 <span class="keyword">and</span> item.x1 &lt; x5:</span><br><span class="line">            dudong.append(item.get_text().replace(<span class="string">'\n'</span>,<span class="string">''</span>))</span><br><span class="line">        <span class="keyword">elif</span> item.y1 == y2:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            ......</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (ii,item) <span class="keyword">in</span> enumerate(dudong):</span><br><span class="line">        result.write(item+<span class="string">','</span>)</span><br><span class="line">        <span class="keyword">if</span> ii!=<span class="number">0</span> <span class="keyword">and</span> (ii+<span class="number">1</span>)%<span class="number">7</span>==<span class="number">0</span> :</span><br><span class="line">            result.write(secCode+<span class="string">','</span>+secName+<span class="string">','</span>+announcementTitle+<span class="string">'\n'</span>)</span><br><span class="line">    </span><br><span class="line">    fp.close()</span><br><span class="line">    result.flush()</span><br><span class="line">    <span class="comment">#fpo.close()</span></span><br><span class="line">    <span class="keyword">return</span> out</span><br></pre></td></tr></table></figure>
+<p>反正最终我维护了地球和平…</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/02/linux-cache/" rel="next" title="Linux 内存中的 Cache 真的能被回收么？">
+                <i class="fa fa-chevron-left"></i> Linux 内存中的 Cache 真的能被回收么？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/06/leetcode-iterator/" rel="prev" title="水题踩坑之迭代器">
+                水题踩坑之迭代器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">大栗子</p>
+              <p class="site-description motion-element" itemprop="description">IT,Life,逗比.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#根据自带outline提取页码"><span class="nav-number">1.</span> <span class="nav-text">根据自带outline提取页码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提取表格"><span class="nav-number">2.</span> <span class="nav-text">提取表格</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">大栗子</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz',
+        appKey: 'mn4p5kSMuj83sTfEmFPEYL4d',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'20' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz", "mn4p5kSMuj83sTfEmFPEYL4d");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

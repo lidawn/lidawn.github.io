@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="C/C++,GCC," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="起因一次偶然碰到一个诡异的bug，现象是同一份C++代码使用GCC4.4.x版本在开启优化前和优化后的结果不一样，优化后的代码逻辑不正确。 示例代码如下：">
+<meta name="keywords" content="C&#x2F;C++,GCC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="排查GCC 4.4.X版本优化switch-enum的BUG">
+<meta property="og:url" content="http://lidawn.github.io/2018/09/02//gcc-bug//index.html">
+<meta property="og:site_name" content="大栗子菜市场">
+<meta property="og:description" content="起因一次偶然碰到一个诡异的bug，现象是同一份C++代码使用GCC4.4.x版本在开启优化前和优化后的结果不一样，优化后的代码逻辑不正确。 示例代码如下：">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-01-06T03:45:17.057Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="排查GCC 4.4.X版本优化switch-enum的BUG">
+<meta name="twitter:description" content="起因一次偶然碰到一个诡异的bug，现象是同一份C++代码使用GCC4.4.x版本在开启优化前和优化后的结果不一样，优化后的代码逻辑不正确。 示例代码如下：">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lidawn.github.io/2018/09/02//gcc-bug//"/>
+
+
+
+
+
+  <title>排查GCC 4.4.X版本优化switch-enum的BUG | 大栗子菜市场</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大栗子菜市场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lidawn.github.io/2018/09/02/gcc-bug/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="大栗子">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大栗子菜市场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">排查GCC 4.4.X版本优化switch-enum的BUG</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-02T00:00:00+08:00">
+                2018-09-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/09/02/gcc-bug/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2018/09/02/gcc-bug/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2018/09/02/gcc-bug/" class="leancloud_visitors" data-flag-title="排查GCC 4.4.X版本优化switch-enum的BUG">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>一次偶然碰到一个诡异的bug，现象是同一份C++代码使用<strong>GCC4.4.x</strong>版本在开启优化前和优化后的结果不一样，优化后的代码逻辑不正确。</p>
+<p>示例代码如下：</p>
+<a id="more"></a>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//main.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">enum</span> Type &#123;</span><br><span class="line">    ERR_A = <span class="number">-1</span>,</span><br><span class="line">    ERR_B = <span class="number">0</span>,</span><br><span class="line">    ERR_C = <span class="number">1</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">(Type tt)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span>(tt)&#123;</span><br><span class="line">        <span class="keyword">case</span> ERR_A:</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"case ERR_A, tt = %d\n"</span>, tt);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> ERR_B:</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"case ERR_B, tt = %d\n"</span>, tt);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> ERR_C:</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"case ERR_C, tt = %d\n"</span>, tt);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"case default, tt = %d\n"</span>, tt);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Type tt = (Type)<span class="number">4</span>;</span><br><span class="line">    func(tt);                   <span class="comment">//预期输出case default</span></span><br><span class="line">    tt = (Type)<span class="number">1</span>;</span><br><span class="line">    func(tt);                   <span class="comment">//预期输出case ERR_C</span></span><br><span class="line">    tt = (Type)<span class="number">-4</span>;</span><br><span class="line">    func(tt);                   <span class="comment">//预期输出case default</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将这段代码分别使用 <code>g++ -O0</code> 和 <code>g++ -O1</code> 编译，结果让人诧异，在tt=4的时候，switch却跳到了1的分支。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ g++ -O0 -g -o main main.cpp</span><br><span class="line">$ ./main</span><br><span class="line"><span class="keyword">case</span> default, tt = 4</span><br><span class="line"><span class="keyword">case</span> ERR_C, tt = 1</span><br><span class="line"><span class="keyword">case</span> default, tt = -4</span><br><span class="line">$ g++ -O1 -g -o main main.cpp</span><br><span class="line">$ ./main</span><br><span class="line"><span class="keyword">case</span> ERR_C, tt = 1</span><br><span class="line"><span class="keyword">case</span> ERR_C, tt = 1</span><br><span class="line"><span class="keyword">case</span> default, tt = -4</span><br></pre></td></tr></table></figure>
+<h2 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h2><p>考虑到是有enum存在，可能是枚举超出定义范围而被GCC优化掉了，在网上找到一篇<strong><a href="https://stackoverflow.com/questions/8115550/what-is-the-size-of-an-enum-type-data-in-c" target="_blank" rel="noopener">帖子</a></strong>，大意是讲enum是以int类型存储的，同时32bit在cpu中有更快的处理效率。 通过单步调试和watch命令也会发现tt的值一直是4，且没有被更改，因此可以排除enum undefined这种情况。</p>
+<p>于是只能去看汇编代码了，事实证明这才是最有效的方式，比自己瞎猜要节省时间。<br>可以通过调试时使用<code>disas</code>命令查看汇编代码，也可以使用<code>objdump</code>直接看二进制的汇编代码。</p>
+<p>对比下debug(上)和release(下)两种情况下的汇编代码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 未开启优化</span></span><br><span class="line">(gdb) b 26</span><br><span class="line">Breakpoint 1 at 0x400620: file main.cpp, line 26.</span><br><span class="line">(gdb) r</span><br><span class="line">...</span><br><span class="line">(gdb) n</span><br><span class="line">27          func(tt);</span><br><span class="line">(gdb) s</span><br><span class="line">func (tt=4) at main.cpp:10</span><br><span class="line">10          switch(tt)&#123;</span><br><span class="line">(gdb) disas /m</span><br><span class="line">Dump of assembler code <span class="keyword">for</span> <span class="keyword">function</span> func(Type):</span><br><span class="line">9       void func(Type tt)&#123;</span><br><span class="line">   0x00000000004005a4 &lt;+0&gt;:     push   %rbp</span><br><span class="line">   0x00000000004005a5 &lt;+1&gt;:     mov    %rsp,%rbp</span><br><span class="line">   0x00000000004005a8 &lt;+4&gt;:     sub    <span class="variable">$0x10</span>,%rsp</span><br><span class="line">   0x00000000004005ac &lt;+8&gt;:     mov    %edi,-0x4(%rbp)</span><br><span class="line"></span><br><span class="line">10          switch(tt)&#123;</span><br><span class="line">=&gt; 0x00000000004005af &lt;+11&gt;:    mov    -0x4(%rbp),%eax</span><br><span class="line">   0x00000000004005b2 &lt;+14&gt;:    <span class="built_in">test</span>   %eax,%eax</span><br><span class="line">   0x00000000004005b4 &lt;+16&gt;:    je     0x4005d6 &lt;func(Type)+50&gt;</span><br><span class="line">   0x00000000004005b6 &lt;+18&gt;:    cmp    <span class="variable">$0x1</span>,%eax</span><br><span class="line">   0x00000000004005b9 &lt;+21&gt;:    je     0x4005ec &lt;func(Type)+72&gt;</span><br><span class="line">   0x00000000004005bb &lt;+23&gt;:    cmp    <span class="variable">$0xffffffffffffffff</span>,%eax</span><br><span class="line">   0x00000000004005be &lt;+26&gt;:    jne    0x400602 &lt;func(Type)+94&gt;</span><br><span class="line">11              <span class="keyword">case</span> ERR_A:</span><br><span class="line">12                  <span class="built_in">printf</span>(<span class="string">"case ERR_A, tt = %d\n"</span>, tt);</span><br><span class="line">   0x00000000004005c0 &lt;+28&gt;:    mov    -0x4(%rbp),%eax</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">14             <span class="keyword">case</span> ERR_B:</span><br><span class="line">15                  <span class="built_in">printf</span>(<span class="string">"case ERR_B, tt = %d\n"</span>, tt);</span><br><span class="line">   0x00000000004005d6 &lt;+50&gt;:    mov    -0x4(%rbp),%eax</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">17            <span class="keyword">case</span> ERR_C:</span><br><span class="line">18                  <span class="built_in">printf</span>(<span class="string">"case ERR_C, tt = %d\n"</span>, tt);</span><br><span class="line">   0x00000000004005ec &lt;+72&gt;:    mov    -0x4(%rbp),%eax</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">20              default:</span><br><span class="line">21                  <span class="built_in">printf</span>(<span class="string">"case default, tt = %d\n"</span>, tt);</span><br><span class="line">   0x0000000000400602 &lt;+94&gt;:    mov    -0x4(%rbp),%eax</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开启O1优化选项</span></span><br><span class="line">(gdb) b 26</span><br><span class="line">Breakpoint 1 at 0x400611: file main.cpp, line 26.</span><br><span class="line">(gdb) r</span><br><span class="line">...</span><br><span class="line">(gdb) n</span><br><span class="line"><span class="keyword">case</span> ERR_C, tt = 1</span><br><span class="line">29          func(tt);</span><br><span class="line">(gdb) s</span><br><span class="line">func (tt=ERR_C) at main.cpp:9</span><br><span class="line">9       void func(Type tt)&#123;</span><br><span class="line">(gdb) disas /m</span><br><span class="line">Dump of assembler code <span class="keyword">for</span> <span class="keyword">function</span> func(Type):</span><br><span class="line">9       void func(Type tt)&#123;</span><br><span class="line">=&gt; 0x00000000004005a4 &lt;+0&gt;:     sub    <span class="variable">$0x8</span>,%rsp</span><br><span class="line"></span><br><span class="line">10          switch(tt)&#123;</span><br><span class="line">   0x00000000004005a8 &lt;+4&gt;:     <span class="built_in">test</span>   %edi,%edi</span><br><span class="line">   0x00000000004005aa &lt;+6&gt;:     je     0x4005cb &lt;func(Type)+39&gt;</span><br><span class="line">   0x00000000004005ac &lt;+8&gt;:     <span class="built_in">test</span>   %edi,%edi</span><br><span class="line">   0x00000000004005ae &lt;+10&gt;:    jg     0x4005e1 &lt;func(Type)+61&gt;</span><br><span class="line">   0x00000000004005b0 &lt;+12&gt;:    cmp    <span class="variable">$0xffffffffffffffff</span>,%edi</span><br><span class="line">   0x00000000004005b3 &lt;+15&gt;:    jne    0x4005f7 &lt;func(Type)+83&gt;</span><br><span class="line">   11           <span class="keyword">case</span> ERR_A:</span><br><span class="line">12                  <span class="built_in">printf</span>(<span class="string">"case ERR_A, tt = %d\n"</span>, tt);</span><br><span class="line">   0x00000000004005b5 &lt;+17&gt;:    mov    <span class="variable">$0xffffffff</span>,%esi</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">14             <span class="keyword">case</span> ERR_B:</span><br><span class="line">15                  <span class="built_in">printf</span>(<span class="string">"case ERR_B, tt = %d\n"</span>, tt);</span><br><span class="line">   0x00000000004005cb &lt;+39&gt;:    mov    <span class="variable">$0x0</span>,%esi</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">17            <span class="keyword">case</span> ERR_C:</span><br><span class="line">18                  <span class="built_in">printf</span>(<span class="string">"case ERR_C, tt = %d\n"</span>, tt);</span><br><span class="line">   0x00000000004005e1 &lt;+61&gt;:    mov    <span class="variable">$0x1</span>,%esi</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">20              default:</span><br><span class="line">21                  <span class="built_in">printf</span>(<span class="string">"case default, tt = %d\n"</span>, tt);</span><br><span class="line">   0x00000000004005f7 &lt;+83&gt;:    mov    %edi,%esi</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>可以看到在<code>O0</code>时，汇编逻辑为：等于0时跳到case B，<strong>等于1跳到了case C</strong>，不等于-1跳到default， 等于-1到case A。<br>而在<code>O1</code>时，汇编逻辑为： 等于0时跳到case B，<strong>大于0直接跳到了case C</strong>，不等于-1跳到default， 等于-1到case A。</p>
+<p>出错的原因就在于开启编译优化后，GCC对大于零的情况默认其为case C(1)，这里<strong>推测是由于<code>test</code>是使用位运算，而<code>cmp</code>是使用加减运算，使用test提高了运算效率</strong>。 但是这种改变代码逻辑，让逻辑出错的优化显然是让人难以接受的。</p>
+<h2 id="官方解释"><a href="#官方解释" class="headerlink" title="官方解释"></a>官方解释</h2><p>如此诡异的问题虽然找到了原因，但内心还是无法接受这是GCC犯的错误。<br>经过谷歌一番，找到了这篇<strong><a href="https://stackoverflow.com/questions/8679534/guard-code-after-switch-on-enum-is-never-reached/8679627" target="_blank" rel="noopener">帖子</a></strong>, 果然有人也踩到了同样的坑。<br>这是一个GCC4.4版本被反馈过的<strong><a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=41425" target="_blank" rel="noopener">bug</a></strong>，尽管这个优化很不合理，但依然被作为一个<strong><a href="https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html#index-fstrict-enums" target="_blank" rel="noopener">“feature”</a></strong>被保留下来…<br>在高版本GCC中，使用<code>-std=c++03 -fstrict-enum</code>选项可以开启这个”特性”，该特性假设编程者会保证enum的取值在其定义范围内。</p>
+<p>最后，解决这个问题的方法有两种，在switch之前做一次enum的范围检查，或者使用更高版本GCC。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>最后的最后，附一个查询资料时看到的关于<a href="http://lazarenko.me/switch/" target="_blank" rel="noopener">GCC对switch做的优化</a>…<br>祝大家周末愉快：）</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li>what is the size of an enum type data in C++? - <a href="https://stackoverflow.com/questions/8115550/what-is-the-size-of-an-enum-type-data-in-c" target="_blank" rel="noopener">https://stackoverflow.com/questions/8115550/what-is-the-size-of-an-enum-type-data-in-c</a></li>
+<li>Guard code after switch on enum is never reached - <a href="https://stackoverflow.com/questions/8679534/guard-code-after-switch-on-enum-is-never-reached/8679627" target="_blank" rel="noopener">https://stackoverflow.com/questions/8679534/guard-code-after-switch-on-enum-is-never-reached/8679627</a></li>
+<li>Bug 41425 - switch with enums doesn’t work - <a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=41425" target="_blank" rel="noopener">https://gcc.gnu.org/bugzilla/show_bug.cgi?id=41425</a></li>
+<li>Options Controlling C++ Dialect - <a href="https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html#index-fstrict-enums" target="_blank" rel="noopener">https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html#index-fstrict-enums</a></li>
+<li>From Switch Statement Down to Machine Code - <a href="http://lazarenko.me/switch/" target="_blank" rel="noopener">http://lazarenko.me/switch/</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          
+            <a href="/tags/GCC/" rel="tag"># GCC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/25/samba-file-share/" rel="next" title="使用samba做windows与linux的文件共享">
+                <i class="fa fa-chevron-left"></i> 使用samba做windows与linux的文件共享
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/26/distribute-tracing/" rel="prev" title="聊聊分布式链路追踪">
+                聊聊分布式链路追踪 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">大栗子</p>
+              <p class="site-description motion-element" itemprop="description">IT,Life,逗比.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#起因"><span class="nav-number">1.</span> <span class="nav-text">起因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排查过程"><span class="nav-number">2.</span> <span class="nav-text">排查过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#官方解释"><span class="nav-number">3.</span> <span class="nav-text">官方解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">4.</span> <span class="nav-text">其他</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">大栗子</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz',
+        appKey: 'mn4p5kSMuj83sTfEmFPEYL4d',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'20' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz", "mn4p5kSMuj83sTfEmFPEYL4d");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

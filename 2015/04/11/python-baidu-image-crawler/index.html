@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Python,爬虫," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前几天涵哥找人帮她写一个图片爬虫，碰巧我以前曾经有过一点点爬虫经验，于是用python写了一个非常简单的百度图片爬虫。 1.分析图片地址最简单的爬虫就是分析网页的HTML代码，从代码中的&amp;lt;a&amp;gt;或者&amp;lt;img&amp;gt;标签中找图片地址，然后用urllib或者request库函数下载，所以我也是这样做的。">
+<meta name="keywords" content="Python,爬虫">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单的百度图片爬虫">
+<meta property="og:url" content="http://lidawn.github.io/2015/04/11//python-baidu-image-crawler//index.html">
+<meta property="og:site_name" content="大栗子菜市场">
+<meta property="og:description" content="前几天涵哥找人帮她写一个图片爬虫，碰巧我以前曾经有过一点点爬虫经验，于是用python写了一个非常简单的百度图片爬虫。 1.分析图片地址最简单的爬虫就是分析网页的HTML代码，从代码中的&amp;lt;a&amp;gt;或者&amp;lt;img&amp;gt;标签中找图片地址，然后用urllib或者request库函数下载，所以我也是这样做的。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEwrR.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEdM9.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEra6.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiE0q1.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEDVx.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEsIK.png">
+<meta property="og:updated_time" content="2019-01-06T03:43:07.292Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="简单的百度图片爬虫">
+<meta name="twitter:description" content="前几天涵哥找人帮她写一个图片爬虫，碰巧我以前曾经有过一点点爬虫经验，于是用python写了一个非常简单的百度图片爬虫。 1.分析图片地址最简单的爬虫就是分析网页的HTML代码，从代码中的&amp;lt;a&amp;gt;或者&amp;lt;img&amp;gt;标签中找图片地址，然后用urllib或者request库函数下载，所以我也是这样做的。">
+<meta name="twitter:image" content="https://s1.ax1x.com/2018/11/23/FiEwrR.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lidawn.github.io/2015/04/11//python-baidu-image-crawler//"/>
+
+
+
+
+
+  <title>简单的百度图片爬虫 | 大栗子菜市场</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大栗子菜市场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lidawn.github.io/2015/04/11/python-baidu-image-crawler/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="大栗子">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大栗子菜市场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">简单的百度图片爬虫</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-04-11T00:00:00+08:00">
+                2015-04-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/04/11/python-baidu-image-crawler/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2015/04/11/python-baidu-image-crawler/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2015/04/11/python-baidu-image-crawler/" class="leancloud_visitors" data-flag-title="简单的百度图片爬虫">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前几天<a href="http://weibo.com/2855186217" target="_blank" rel="noopener">涵哥</a>找人帮她写一个图片爬虫，碰巧我以前曾经有过一点点爬虫经验，于是用python写了一个非常简单的百度图片爬虫。</p>
+<h4 id="1-分析图片地址"><a href="#1-分析图片地址" class="headerlink" title="1.分析图片地址"></a>1.分析图片地址</h4><p>最简单的爬虫就是分析网页的HTML代码，从代码中的<code>&lt;a&gt;</code>或者<code>&lt;img&gt;</code>标签中找图片地址，然后用<code>urllib</code>或者<code>request</code>库函数下载，所以我也是这样做的。</p>
+<a id="more"></a>
+<p>首先在chrome中打开百度图片搜索的结果页面，然后审查元素，然后找图片标签,结果是这样的：</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEwrR.png" alt="搜索结果审查元素"></p>
+<p>这里有几个值得注意的地方：</p>
+<ol>
+<li>图片是以无序列表<code>&lt;ul&gt;</code>呈现的，每个图为一个<code>&lt;li&gt;</code>子项，搭配各种<code>css</code>。</li>
+<li><code>data-objurl</code>（对应图中1）是图片的真实地址。</li>
+<li><code>&lt;a&gt;</code>（对应图中2）是点击图片后的页面地址。</li>
+<li><code>src</code>（对应图中3）是页面展示出来的小图地址。</li>
+</ol>
+<p>其中<code>data-objurl</code>是我想要的地址。</p>
+<p>所以大致思路出来了，先在搜索结果页面中遍历所有同类型的<code>&lt;li&gt;</code>标签，然后在其中找<code>data-objurl</code>，得到图片真实地址，匹配方法可以用<a href="http://www.crummy.com/software/BeautifulSoup/bs4/doc/" target="_blank" rel="noopener"><strong>BeautifulSoup</strong></a>或者<strong>正则表达式</strong>。</p>
+<p>于是我先下载了一个搜索页面，测试匹配和如何遍历所有图片的真实地址，这里有经验的伙伴肯定就已经猜到了会出问题。没错，问题出现了，在我用如下代码下载的搜索页面HTML代码中，<strong>完全找不到所谓的<code>&lt;li&gt;</code>标签，跟别提<code>data-objurl</code>了</strong>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">import</span> urllib2</span><br><span class="line"></span><br><span class="line">url=<span class="string">'''http://image.baidu.com/i?tn=baiduimage&amp;ipn=r&amp;ct=201326592&amp;cl=2&amp;lm=-1&amp;st=-1&amp;fm=result&amp;fr=&amp;sf=1&amp;fmq=1428730266003_R&amp;pv=&amp;ic=0&amp;nc=1&amp;z=&amp;se=1&amp;showtab=0&amp;fb=0&amp;width=&amp;height=&amp;face=0&amp;istype=2&amp;ie=utf-8&amp;word=%E6%B1%BD%E8%BD%A6'''</span></span><br><span class="line">	</span><br><span class="line">headers = &#123;<span class="string">'Accept'</span>:<span class="string">'image/webp'</span>,</span><br><span class="line">	<span class="string">'User-Agent'</span>:<span class="string">'''Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'''</span>,&#125;</span><br><span class="line">req = urllib2.Request(url,headers=headers)</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">	content = urllib2.urlopen(req).read()</span><br><span class="line"><span class="keyword">except</span> urllib2.URLError,e:</span><br><span class="line">	<span class="keyword">print</span> e </span><br><span class="line">f = open(<span class="string">'a.txt'</span>,<span class="string">'w+'</span>)</span><br><span class="line">f.write(content)</span><br><span class="line">f.close()</span><br></pre></td></tr></table></figure>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEdM9.png" alt="网页结果"></p>
+<p>这里问题的元凶就是<a href="http://zh.wikipedia.org/zh-cn/AJAX" target="_blank" rel="noopener"><strong>AJAX</strong></a>了，通常这种有规律的列表类数据都会通过JavaScript异步请求服务器获得，服务器通常返回嵌入的HTML代码或者XML代码或者JSON代码，这样的设计能够让结果多次返回，有利于加强用户体验。</p>
+<p>前面的方法虽然不能够得到结果了，但是也并不是没有收获，我们知道了在搜索结果页面加载后，图片的真实地址一定会返回到前端浏览器，只是返回的地址和格式不清楚罢了。</p>
+<h4 id="2-分析网络请求"><a href="#2-分析网络请求" class="headerlink" title="2.分析网络请求"></a>2.分析网络请求</h4><p>打开chrome审查元素的network标签，重新加载搜索页面或者在页面下拉，可以看到浏览器收到了N多请求：</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEra6.png" alt="chrome请求"></p>
+<p>经过过滤，得到了JSON数据的链接：</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiE0q1.png" alt="JSON请求"></p>
+<p>打开之后是这样的：</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEDVx.png" alt="JSON"></p>
+<p>观察和调试<a href="http://image.baidu.com/i?tn=resultjson_com&amp;ipn=rj&amp;ct=201326592&amp;is=&amp;fp=result&amp;queryWord=%E6%B1%BD%E8%BD%A6&amp;cl=2&amp;lm=-1&amp;ie=utf-8&amp;oe=utf-8&amp;adpicid=&amp;st=-1&amp;z=&amp;ic=0&amp;word=%E6%B1%BD%E8%BD%A6&amp;s=&amp;se=1&amp;tab=&amp;width=&amp;height=&amp;face=0&amp;istype=2&amp;qc=&amp;nc=1&amp;fr=%26fr%3D&amp;pn=60&amp;rn=60&amp;1428762351614=" target="_blank" rel="noopener"><strong>URL</strong></a>参数，我们发现了三个有价值的参数，<strong><code>tn,rn,word</code></strong>，分别代表起始图片序号，返回图片数量以及关键字，改变这三个参数我们就可以得到任意想要的图片结果。</p>
+<p>再看返回的JSON数据，objURL代表的是原始地址，就是我们想要的结果，可以用python的JSON库函数或者正则表达式将其读出。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEsIK.png" alt="密文"></p>
+<p>但是细心的伙伴们又发现问题了，这个真实地址竟然是密文！！！</p>
+<h4 id="3-解密真实URL"><a href="#3-解密真实URL" class="headerlink" title="3.解密真实URL"></a>3.解密真实URL</h4><p>百度也真是让人不省心，竟然给我们一堆密文。但是细一想明明图1中的<code>data-objurl</code>是明文，所以说解密的方法一定就在前端代码里了。咨询了组里的<a href="http://www.fatalfault.com/" target="_blank" rel="noopener">前端大神</a>后，这个问题得到了完美解决(各种js设置断点，各种调试，找到了解密方法)。</p>
+<p>原来的密文是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ippr_z2C$qAzdH3FAzdH3Ft42d_z&amp;e3B4pt4j_z&amp;e3BvgAzdH3F7rAzdH3F8dabAzdH3Fdn88dabAzdH3FcdmDl88c-DBdb-9Aal-laCd-nnnFB889mCdE_caa_z&amp;e3B3r2</span><br></pre></td></tr></table></figure>
+<p>解密后是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://img2.mtime.cn/up/1208/2311208/526D9115-DB28-4A09-90C2-333FB1146C2E_500.jpg</span><br></pre></td></tr></table></figure>
+<p>其实就是一个简单的映射，映射方法是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&quot;0&quot;: &quot;7&quot;,    &quot;1&quot;: &quot;d&quot;,    &quot;2&quot;: &quot;g&quot;,    &quot;3&quot;: &quot;j&quot;,    &quot;4&quot;: &quot;m&quot;,    &quot;5&quot;: &quot;o&quot;,    &quot;6&quot;: &quot;r&quot;,    &quot;7&quot;: &quot;u&quot;,    &quot;8&quot;: &quot;1&quot;,</span><br><span class="line">&quot;9&quot;: &quot;4&quot;,    &quot;AzdH3F&quot;: &quot;/&quot;,    &quot;_z2C$q&quot;: &quot;:&quot;,    &quot;_z&amp;e3B&quot;: &quot;.&quot;,    &quot;a&quot;: &quot;0&quot;,    &quot;b&quot;: &quot;8&quot;,    &quot;c&quot;: &quot;5&quot;,</span><br><span class="line">&quot;d&quot;: &quot;2&quot;,    &quot;e&quot;: &quot;v&quot;,    &quot;f&quot;: &quot;s&quot;,    &quot;g&quot;: &quot;n&quot;,    &quot;h&quot;: &quot;k&quot;,    &quot;i&quot;: &quot;h&quot;,    &quot;j&quot;: &quot;e&quot;,    &quot;k&quot;: &quot;b&quot;,    &quot;l&quot;: &quot;9&quot;,</span><br><span class="line">&quot;m&quot;: &quot;6&quot;,    &quot;n&quot;: &quot;3&quot;,    &quot;o&quot;: &quot;w&quot;,    &quot;p&quot;: &quot;t&quot;,    &quot;q&quot;: &quot;q&quot;,    &quot;r&quot;: &quot;p&quot;,    &quot;s&quot;: &quot;l&quot;,    &quot;t&quot;: &quot;i&quot;,    &quot;u&quot;: &quot;f&quot;,</span><br><span class="line">&quot;v&quot;: &quot;c&quot;,    &quot;w&quot;: &quot;a&quot;</span><br></pre></td></tr></table></figure>
+<p>额，百度真是用心良苦啊！！！</p>
+<blockquote>
+<p>这里还有一个小插曲，在我写这篇文章的时候百度前端的代码已经跟我当时写爬虫时不一样了，本来页面中是没有真实地址的，地址解析是在onclick事件之后，当时的代码是这样的<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">onclick=<span class="string">"storeData( 'ippr_z2C$qAzdH3FAzdH3Futsjf_z&amp;e3Bvitgwwjp_z&amp;e3Bv54AzdH3Ft4w2jfAzdH3Fcl0nm0n09dcb8_z&amp;e3B2tu', 2);p(event,0,&#123;ist:'',sr:'0',u:'ippr_z2C$qAzdH3FAzdH3Futsjf_z&amp;e3Bvitgwwjp_z&amp;e3Bv54AzdH3Ft4w2jfAzdH3Fcl0nm0n09dcb8_z&amp;e3B2tu',f:'ippr_z2C$qAzdH3FAzdH3Fooo_z&amp;e3Bvitgwwjp_z&amp;e3Bv54AzdH3Fw6ptvsjAzdH3Ftg1jx_z&amp;e3Bwfrx?t1=8blll',cs:'1559793225,3606235040',t:1, asp:0, rts:'0'&#125;);"</span></span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<blockquote>
+<p>而现今这个代码已经消失了，而且图片真实地址出现在了前面提到的<code>data-objurl</code>中，估计是为了提高用户体验，在页面加载的时候提前解密了，大百度果然是精益求精，吊爆了！</p>
+</blockquote>
+<h4 id="4-爬虫"><a href="#4-爬虫" class="headerlink" title="4. 爬虫"></a>4. 爬虫</h4><p>写了一堆基本原理，终于可以写爬虫了，这个部分是最简单也最没有技术含量的。直接上代码吧。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">import</span>  re </span><br><span class="line"><span class="keyword">import</span> urllib2</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">parse_url</span><span class="params">(s)</span>:</span></span><br><span class="line">	<span class="comment">#映射的字典</span></span><br><span class="line">	dic = &#123;</span><br><span class="line">		<span class="string">"0"</span>: <span class="string">"7"</span>,	<span class="string">"1"</span>: <span class="string">"d"</span>,	<span class="string">"2"</span>: <span class="string">"g"</span>,	<span class="string">"3"</span>: <span class="string">"j"</span>,	<span class="string">"4"</span>: <span class="string">"m"</span>,	<span class="string">"5"</span>: <span class="string">"o"</span>,	<span class="string">"6"</span>: <span class="string">"r"</span>,	<span class="string">"7"</span>: <span class="string">"u"</span>,	<span class="string">"8"</span>: <span class="string">"1"</span>,</span><br><span class="line">	    <span class="string">"9"</span>: <span class="string">"4"</span>,	<span class="string">"a"</span>: <span class="string">"0"</span>,	<span class="string">"b"</span>: <span class="string">"8"</span>,	<span class="string">"c"</span>: <span class="string">"5"</span>,	<span class="string">"d"</span>: <span class="string">"2"</span>,	<span class="string">"e"</span>: <span class="string">"v"</span>,	<span class="string">"f"</span>: <span class="string">"s"</span>,	<span class="string">"g"</span>: <span class="string">"n"</span>,	<span class="string">"h"</span>: <span class="string">"k"</span>,</span><br><span class="line">	    <span class="string">"i"</span>: <span class="string">"h"</span>,	<span class="string">"j"</span>: <span class="string">"e"</span>,	<span class="string">"k"</span>: <span class="string">"b"</span>,	<span class="string">"l"</span>: <span class="string">"9"</span>,	<span class="string">"m"</span>: <span class="string">"6"</span>,	<span class="string">"n"</span>: <span class="string">"3"</span>,	<span class="string">"o"</span>: <span class="string">"w"</span>,	<span class="string">"p"</span>: <span class="string">"t"</span>,	<span class="string">"q"</span>: <span class="string">"q"</span>,</span><br><span class="line">	    <span class="string">"r"</span>: <span class="string">"p"</span>,	<span class="string">"s"</span>: <span class="string">"l"</span>,	<span class="string">"t"</span>: <span class="string">"i"</span>,	<span class="string">"u"</span>: <span class="string">"f"</span>,	<span class="string">"v"</span>: <span class="string">"c"</span>,	<span class="string">"w"</span>: <span class="string">"a"</span></span><br><span class="line">	&#125;</span><br><span class="line">	s = s.replace(<span class="string">"AzdH3F"</span>,<span class="string">"/"</span>)</span><br><span class="line">	s = s.replace(<span class="string">"_z2C$q"</span>, <span class="string">":"</span>)</span><br><span class="line">	s = s.replace(<span class="string">"_z&amp;e3B"</span>, <span class="string">"."</span>)</span><br><span class="line">	p = <span class="string">""</span></span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">		<span class="keyword">if</span> i <span class="keyword">in</span> dic.keys():</span><br><span class="line">			p += dic[i]</span><br><span class="line">		<span class="keyword">else</span>:</span><br><span class="line">			p += i</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> p</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">baidu_crawler</span><span class="params">(start,word,ren)</span>:</span></span><br><span class="line">	<span class="comment">#三个参数，start为起始offset，word为关键字，ren为返回图片个数</span></span><br><span class="line">	json_url = <span class="string">'''http://image.baidu.com/i?tn=resultjson_com&amp;ie=utf-8&amp;pn=%s&amp;word=%s&amp;rn=%s&amp;itg=0&amp;z=0&amp;fr=&amp;width=&amp;height=&amp;lm=-1&amp;ic=0&amp;s=0&amp;st=-1#'''</span></span><br><span class="line">	key_word = []</span><br><span class="line">	<span class="keyword">for</span> item <span class="keyword">in</span> word:</span><br><span class="line">		a = urllib.quote(item)</span><br><span class="line">		key_word.append(a)</span><br><span class="line">	<span class="comment">#关键字转义为ascii字符</span></span><br><span class="line">	key_word_string = <span class="string">'+'</span>.join(key_word)</span><br><span class="line">	pre_name = <span class="string">'_'</span>.join(word)</span><br><span class="line"></span><br><span class="line">	url  = json_url%(str(start),key_word_string,str(ren))</span><br><span class="line">	<span class="comment">#print url</span></span><br><span class="line">	<span class="comment">#伪装成浏览器请求，一定程度防止被ban	</span></span><br><span class="line">	headers = &#123;<span class="string">'Accept'</span>:<span class="string">'image/webp'</span>,</span><br><span class="line">	<span class="string">'User-Agent'</span>:<span class="string">'''Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'''</span>,&#125;</span><br><span class="line">	req = urllib2.Request(url,headers=headers)</span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		content = urllib2.urlopen(req).read()</span><br><span class="line">	<span class="keyword">except</span> urllib2.URLError,e:</span><br><span class="line">		<span class="keyword">print</span> e </span><br><span class="line">	<span class="comment">#正则匹配JSON数据</span></span><br><span class="line">	pattern_url = re.compile(<span class="string">r'\"objURL\":\"(.*?)\",'</span>,re.S)</span><br><span class="line">	result_pic = pattern_url.findall(content)</span><br><span class="line">		</span><br><span class="line">	i  = start</span><br><span class="line">	<span class="keyword">for</span> result <span class="keyword">in</span> result_pic:</span><br><span class="line">		real_url = parse_url(result)</span><br><span class="line">		<span class="comment">#print real_url</span></span><br><span class="line">		i+=<span class="number">1</span></span><br><span class="line">		pic_name = <span class="string">"%s_%s.jpg"</span> % (pre_name,str(datetime.datetime.now().second)+<span class="string">'_'</span>+str(i))</span><br><span class="line">			</span><br><span class="line">		<span class="keyword">print</span> <span class="string">'downloading pic No.%s'</span> % str(i)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">'pics'</span>):</span><br><span class="line">			os.mkdir(<span class="string">'pics'</span>)</span><br><span class="line">		name = <span class="string">'pics/%s'</span> % pic_name</span><br><span class="line">		<span class="keyword">if</span> os.path.isfile(name):</span><br><span class="line">			os.remove(name)</span><br><span class="line">		<span class="keyword">try</span>:</span><br><span class="line">			<span class="comment">#设置超时</span></span><br><span class="line">			socket.setdefaulttimeout(<span class="number">20</span>)</span><br><span class="line">			<span class="comment">#下载图片</span></span><br><span class="line">			urllib.urlretrieve(real_url,name)</span><br><span class="line">		<span class="keyword">except</span> urllib.ContentTooShortError,e:</span><br><span class="line">			<span class="keyword">print</span> <span class="string">'error 1'</span></span><br><span class="line">			<span class="keyword">print</span> e</span><br><span class="line">			os.remove(name)</span><br><span class="line">		<span class="keyword">except</span> socket.timeout,e:</span><br><span class="line">			<span class="keyword">print</span> <span class="string">'error 2'</span></span><br><span class="line">			<span class="keyword">print</span> e</span><br><span class="line">			os.remove(name)</span><br><span class="line">		<span class="keyword">except</span> IOError,e:</span><br><span class="line">			<span class="keyword">print</span> <span class="string">'error 3'</span></span><br><span class="line">			<span class="keyword">print</span> e</span><br><span class="line">			</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_crawler</span><span class="params">(num,word)</span>:</span></span><br><span class="line">	i=<span class="number">0</span></span><br><span class="line">	<span class="keyword">while</span> num/<span class="number">60</span> !=<span class="number">0</span>:</span><br><span class="line">		baidu_crawler(i,word,<span class="number">60</span>)</span><br><span class="line">		i+=<span class="number">60</span></span><br><span class="line">		num -=<span class="number">60</span></span><br><span class="line"></span><br><span class="line">	baidu_crawler(i,word,num)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">'__main__'</span>:</span><br><span class="line">	<span class="keyword">import</span> sys</span><br><span class="line">	args = sys.argv</span><br><span class="line">	<span class="keyword">if</span> len(args) &lt; <span class="number">3</span>:</span><br><span class="line">		<span class="keyword">print</span> <span class="string">u'参数格式错误'</span></span><br><span class="line">		<span class="keyword">print</span> <span class="string">u'格式：python baidu_crawler_4.py number word\nnumber:要下载的图片数量\nword:关键字(关键字可以用空格隔开)'</span></span><br><span class="line">		sys.exit(<span class="number">0</span>)</span><br><span class="line">	num = int(args[<span class="number">1</span>])</span><br><span class="line">	word = args[<span class="number">2</span>:]</span><br><span class="line"></span><br><span class="line">	my_crawler(num,word)</span><br></pre></td></tr></table></figure>
+<p>代码在python2.7下运行，没有任何依赖。<br>马丹，博客和代码一样丑陋！！    </p>
+<p>gist： <a href="https://gist.github.com/lidawn/7e7e00f04e33bd5f803d" target="_blank" rel="noopener">https://gist.github.com/lidawn/7e7e00f04e33bd5f803d</a></p>
+<p>另汽车之家外观爬虫gist： <a href="https://gist.github.com/lidawn/61982497121e10720fff" target="_blank" rel="noopener">https://gist.github.com/lidawn/61982497121e10720fff</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/爬虫/" rel="tag"># 爬虫</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/04/30/parallel-io-basic/" rel="prev" title="并行I/O概要">
+                并行I/O概要 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">大栗子</p>
+              <p class="site-description motion-element" itemprop="description">IT,Life,逗比.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-分析图片地址"><span class="nav-number">1.</span> <span class="nav-text">1.分析图片地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-分析网络请求"><span class="nav-number">2.</span> <span class="nav-text">2.分析网络请求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-解密真实URL"><span class="nav-number">3.</span> <span class="nav-text">3.解密真实URL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-爬虫"><span class="nav-number">4.</span> <span class="nav-text">4. 爬虫</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">大栗子</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz',
+        appKey: 'mn4p5kSMuj83sTfEmFPEYL4d',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'20' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz", "mn4p5kSMuj83sTfEmFPEYL4d");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

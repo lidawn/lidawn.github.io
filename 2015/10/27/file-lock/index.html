@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="I/O,Unix," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="概述当同一个文件被多进程同时打开，操作时，为防止一致性的问题，需要使用文件锁。Unix系统使用fcntl函数来操作文件锁。文件锁与线程锁不同，线程锁是把文件作为临界资源，防止多个线程同时打开一个文件，文件锁是防止多个并行进程同时访问同一个文件的同一块内容，《linux程序设计》中将其称为区域锁。">
+<meta name="keywords" content="I&#x2F;O,Unix">
+<meta property="og:type" content="article">
+<meta property="og:title" content="底层I&#x2F;O之文件锁">
+<meta property="og:url" content="http://lidawn.github.io/2015/10/27//file-lock//index.html">
+<meta property="og:site_name" content="大栗子菜市场">
+<meta property="og:description" content="概述当同一个文件被多进程同时打开，操作时，为防止一致性的问题，需要使用文件锁。Unix系统使用fcntl函数来操作文件锁。文件锁与线程锁不同，线程锁是把文件作为临界资源，防止多个线程同时打开一个文件，文件锁是防止多个并行进程同时访问同一个文件的同一块内容，《linux程序设计》中将其称为区域锁。">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-01-06T03:27:54.210Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="底层I&#x2F;O之文件锁">
+<meta name="twitter:description" content="概述当同一个文件被多进程同时打开，操作时，为防止一致性的问题，需要使用文件锁。Unix系统使用fcntl函数来操作文件锁。文件锁与线程锁不同，线程锁是把文件作为临界资源，防止多个线程同时打开一个文件，文件锁是防止多个并行进程同时访问同一个文件的同一块内容，《linux程序设计》中将其称为区域锁。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lidawn.github.io/2015/10/27//file-lock//"/>
+
+
+
+
+
+  <title>底层I/O之文件锁 | 大栗子菜市场</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大栗子菜市场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lidawn.github.io/2015/10/27/file-lock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="大栗子">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大栗子菜市场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">底层I/O之文件锁</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-27T00:00:00+08:00">
+                2015-10-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/10/27/file-lock/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2015/10/27/file-lock/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2015/10/27/file-lock/" class="leancloud_visitors" data-flag-title="底层I/O之文件锁">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>当同一个文件被多进程同时打开，操作时，为防止一致性的问题，需要使用文件锁。Unix系统使用<code>fcntl</code>函数来操作文件锁。文件锁与线程锁不同，线程锁是把文件作为临界资源，防止多个线程同时打开一个文件，文件锁是防止多个并行进程同时访问同一个文件的同一块内容，《linux程序设计》中将其称为区域锁。</p>
+<a id="more"></a>
+<p>如果一个数据块被加了读锁(read lock)，那其他进程不能再对该块加写锁（write lock），但是与读有关的锁操作可以进行，所以读锁也称为共享锁。而一个数据块被加了写锁(write lock)，那其他进程不能再对该块加任何锁，写锁也称为独占锁。注意这里说的是锁之间的互斥关系，而不是读写操作的互斥关系，为什么说的这么拗口呢，这是因为Unix关于读写操作的函数并不去检查文件块是否加锁，文件锁只能限制锁操作而不限制读写操作，所以为了达到保证文件内容一致性的目的，对于文件内的临界数据，在读写之前要用锁操作去限制后面的读写函数的调用，也就是说加锁和检测锁是程序猿的工作:(。比如写一个临界数据，先用锁操作检查有没有锁（因为写操作本身不检查锁），如果有锁就不写。而且使用了文件锁后就必须用内核态的读写函数<code>read , write</code> 而不能用<code>fread , fwrite</code>，因为<code>fread</code>属于buffered I/O 会在用户态内存中缓存数据，影响锁的正确使用。</p>
+<p>一个进程一次对一个文件的某一个字节内容只能加一种类型的锁，锁随进程退出而被释放，并且不会被其子进程继承。</p>
+<h2 id="锁操作"><a href="#锁操作" class="headerlink" title="锁操作"></a>锁操作</h2><p>文件锁操作通过函数：<code>fcntl (fd, cmd, lock_p)</code>来完成。</p>
+<h3 id="struct-flock"><a href="#struct-flock" class="headerlink" title="struct flock"></a>struct flock</h3><p>其中第三个参数<code>lock_p</code>是描述文件锁的 , <code>lock_p</code>结构类型为<code>struct flock</code>，定义在<code>fcntl.h</code>中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">flock</span>&#123;</span></span><br><span class="line">	<span class="keyword">short</span> <span class="keyword">int</span> l_type;</span><br><span class="line">	<span class="keyword">short</span> <span class="keyword">int</span> l_whence;</span><br><span class="line">	<span class="keyword">off_t</span> l_start;</span><br><span class="line">	<span class="keyword">off_t</span> l_len;</span><br><span class="line">	<span class="keyword">pid_t</span> l_pid;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>short int l_type</strong>: 指明锁类型，值为：<code>F_RDLCK</code>（读锁）, <code>F_WRLCK</code>（写锁）, <code>F_UNLCK</code>（释放锁）。</p>
+<p><strong>short int l_whence</strong>: 文件指针从何处开始，类似<code>seek</code>函数，值为：<code>SEEK_SET</code>, <code>SEEK_CUR</code>, <code>SEEK_END</code>。</p>
+<p><strong>off_t l_start</strong>: 指明文件块的起始偏移地址（相对于<code>l_whence</code>）。</p>
+<p><strong>off_t l_len</strong>: 指明文件块大小。<strong>0</strong>表示从<code>l_start</code>到文件结尾。</p>
+<p><strong>pid_t l_pid</strong>: 指明拥有锁的进程ID。当<code>cmd</code>为<code>F_GETLK</code>时会返回拥有锁的进程号。</p>
+<h3 id="Macro"><a href="#Macro" class="headerlink" title="Macro"></a>Macro</h3><p><code>fcntl (fd, cmd, lock_p)</code>第二个参数<code>cmd</code>是一个宏定义，代表具体的锁操作，值为：<code>F_GETLK</code>，<code>F_SETLK</code>，<code>F_SETLKW</code>。</p>
+<p><strong>int F_GETLK</strong>: 获取指定文件区域的锁信息，调用形式为<code>fcntl(fd, F_GETLK, lock_p)</code>，如果该区域存在与要检查类型冲突的锁，则该锁信息会被更新到<code>lock_p</code>中。例如你想测试某一块区域能否加一个<code>F_RDLCK</code>,若该区域存在一个<code>F_RDLCK</code>锁，此时加锁是可行的，因此<code>fcntl</code>调用返回非-1，表示可加锁，且<code>lock_p</code>不会被更新，若你想加的是<code>F_WRLCK</code>，那<code>fcntl</code>返回-1，表示不能加锁，<code>lock_p</code>的信息被更新为与<code>F_WRLCK</code>相冲突的那个锁的信息（五个字段全部被更新）。如果该区域没有锁，则<code>l_type</code>被更新为<code>F_UNLCK</code>。根据上面的描述，<code>F_WRLCK</code>可以检测读锁和写锁，<code>F_RDLCK</code>只能检测写锁。</p>
+<p>其他的错误信息，在<code>errno</code>中，其值为：</p>
+<p>EBADF：参数fd不正确。</p>
+<p>EINVAL：参数lock_p不正确或者文件不支持锁。</p>
+<p><strong>int F_SETLK</strong>：用来进行加锁或解锁（解锁时<code>l_type</code>是<code>F_UNLCK</code>）操作，调用形式为<code>fcntl(fd, F_SETLK, lock_p)</code>。如果有上述类型的锁冲突，加锁会失败，函数会<strong>立即</strong>返回-1。进程只能解自己的锁，在读写操作结束后，要有释放锁的习惯。</p>
+<p><code>errno</code>信息为：</p>
+<p>EAGAIN 或者 EACCES：有其他的锁阻碍加锁操作</p>
+<p>EBADF： 参数fd不正确。</p>
+<p>EINVAL：参数lock_p不正确或者文件不支持锁</p>
+<p>ENOLCK：锁资源不足。</p>
+<p><strong>int F_SETLKW</strong>：该命令与<code>F_SETLK</code>功能一样，只不过在加锁失败时不是立即返回，而是阻塞等待冲突的锁被释放并且加锁成功。</p>
+<p><code>errno</code>信息为：</p>
+<p>EINTR：阻塞过程被中断。</p>
+<p>EDEADLK：出现死锁。</p>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p>请参考《linux程序设计（第四版）》P228。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/I-O/" rel="tag"># I/O</a>
+          
+            <a href="/tags/Unix/" rel="tag"># Unix</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/13/quintus/" rel="next" title="一个quintus游戏引擎例子">
+                <i class="fa fa-chevron-left"></i> 一个quintus游戏引擎例子
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/10/29/pointer-on-pointer/" rel="prev" title="树的插入（创建）为什么要使用指针的指针">
+                树的插入（创建）为什么要使用指针的指针 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">大栗子</p>
+              <p class="site-description motion-element" itemprop="description">IT,Life,逗比.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锁操作"><span class="nav-number">2.</span> <span class="nav-text">锁操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#struct-flock"><span class="nav-number">2.1.</span> <span class="nav-text">struct flock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Macro"><span class="nav-number">2.2.</span> <span class="nav-text">Macro</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#例子"><span class="nav-number">3.</span> <span class="nav-text">例子</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">大栗子</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz',
+        appKey: 'mn4p5kSMuj83sTfEmFPEYL4d',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'20' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz", "mn4p5kSMuj83sTfEmFPEYL4d");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

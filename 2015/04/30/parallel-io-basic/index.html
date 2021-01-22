@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="I/O,HPC-I/O,Parallel-I/O," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="1. 并行I/O介绍本文将对并行I/O，主要是MPI-IO做一个简要介绍。在HPC领域，CPU速度与磁盘速度的差异使得I/O成为一个巨大的瓶颈。I/O分为读和写，HPC中，读操作通常在应用程序的启动时执行，如读初始参数，读checkpoint等，而写操作通常贯穿整个应用程序执行过程。由于程序写操作的不规则性（与底层文件系统），导致写比读面临的挑战要更大。">
+<meta name="keywords" content="I&#x2F;O,HPC-I&#x2F;O,Parallel-I&#x2F;O">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并行I&#x2F;O概要">
+<meta property="og:url" content="http://lidawn.github.io/2015/04/30//parallel-io-basic//index.html">
+<meta property="og:site_name" content="大栗子菜市场">
+<meta property="og:description" content="1. 并行I/O介绍本文将对并行I/O，主要是MPI-IO做一个简要介绍。在HPC领域，CPU速度与磁盘速度的差异使得I/O成为一个巨大的瓶颈。I/O分为读和写，HPC中，读操作通常在应用程序的启动时执行，如读初始参数，读checkpoint等，而写操作通常贯穿整个应用程序执行过程。由于程序写操作的不规则性（与底层文件系统），导致写比读面临的挑战要更大。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEEUf.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEFbt.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEiDI.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEAVP.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEPKA.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEV58.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEePS.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEm8g.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEQrn.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEn2Q.gif">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/23/FiEuvj.gif">
+<meta property="og:updated_time" content="2019-01-06T03:26:13.771Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="并行I&#x2F;O概要">
+<meta name="twitter:description" content="1. 并行I/O介绍本文将对并行I/O，主要是MPI-IO做一个简要介绍。在HPC领域，CPU速度与磁盘速度的差异使得I/O成为一个巨大的瓶颈。I/O分为读和写，HPC中，读操作通常在应用程序的启动时执行，如读初始参数，读checkpoint等，而写操作通常贯穿整个应用程序执行过程。由于程序写操作的不规则性（与底层文件系统），导致写比读面临的挑战要更大。">
+<meta name="twitter:image" content="https://s1.ax1x.com/2018/11/23/FiEEUf.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lidawn.github.io/2015/04/30//parallel-io-basic//"/>
+
+
+
+
+
+  <title>并行I/O概要 | 大栗子菜市场</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">大栗子菜市场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lidawn.github.io/2015/04/30/parallel-io-basic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="大栗子">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="大栗子菜市场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">并行I/O概要</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-04-30T00:00:00+08:00">
+                2015-04-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/04/30/parallel-io-basic/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2015/04/30/parallel-io-basic/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2015/04/30/parallel-io-basic/" class="leancloud_visitors" data-flag-title="并行I/O概要">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1-并行I-O介绍"><a href="#1-并行I-O介绍" class="headerlink" title="1. 并行I/O介绍"></a>1. 并行I/O介绍</h2><p>本文将对并行I/O，主要是MPI-IO做一个简要介绍。在HPC领域，CPU速度与磁盘速度的差异使得I/O成为一个巨大的瓶颈。I/O分为读和写，HPC中，读操作通常在应用程序的启动时执行，如读初始参数，读checkpoint等，而写操作通常贯穿整个应用程序执行过程。由于程序写操作的不规则性（与底层文件系统），导致写比读面临的挑战要更大。</p>
+<a id="more"></a>
+<h2 id="2-并行文件系统与文件视图"><a href="#2-并行文件系统与文件视图" class="headerlink" title="2. 并行文件系统与文件视图"></a>2. 并行文件系统与文件视图</h2><h3 id="2-1-并行文件系统"><a href="#2-1-并行文件系统" class="headerlink" title="2.1 并行文件系统"></a>2.1 并行文件系统</h3><p><strong>图1</strong>呈现的是并行I/O的体系结构。我们将节点分为计算节点和存储节点两种，每一种的数量都不限，但通常计算节点数目要多于存储节点，两者之间用网络连接。所谓并行I/O就是来自计算节点的多个进程同时将数据从计算节点的内存转移到存储节点的磁盘上（或者反过来）的过程。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEEUf.gif" alt="io_overview"></p>
+<p>多个存储节点通常安装并行文件系统，将多个存储节点上的磁盘组织成为一个逻辑上统一的磁盘供计算节点使用，也就是说所有的进程只看到一个磁盘，但是这个磁盘的容量是所有存储节点的容量和。Lustre是目前最流行的并行文件系统，一种典型的Lustre部署是由一个元数据服务器（MDS）和多个对象存储服务器（OSS）组成。一个OSS又对应一个或者多个对象存储目标（OST），我们可以看做OSS是一个物理节点，OST是挂载在该物理节点上的磁盘，通常一个OSS对应一个OST。通过一个MDS和多个OSS的结构，Lustre可以将一个大文件拆分成多个部分并且分布到不同的OST上(RoundRobin方式：RR)，从而达到并行读写的目的，而怎样分布这些数据记录在MDS中。应用程序读写文件时首先与MDS通讯获得文件分布的信息，然后直接与OST连接进行读写操作。</p>
+<blockquote>
+<p><strong><em>参考：<a href="https://zh.wikipedia.org/wiki/%E5%BE%AA%E7%92%B0%E5%88%B6" target="_blank" rel="noopener">RR</a></em></strong></p>
+</blockquote>
+<h3 id="2-2-文件的物理视图和逻辑视图"><a href="#2-2-文件的物理视图和逻辑视图" class="headerlink" title="2.2 文件的物理视图和逻辑视图"></a>2.2 文件的物理视图和逻辑视图</h3><p><strong>图2</strong>展示的是一个文件的物理视图，这个文件分为5块，分布在4个OST上(以RR方式)。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEFbt.gif" alt="Physical_View"></p>
+<p><strong>图3</strong>展示的是一个文件的逻辑视图，这个文件由连续的字节序列组成,逻辑视图是应用程序能看到的文件的样子，包括起始位置，长度等。<br>文件的逻辑视图与物理视图，即底层的文件系统，是没有关系的，但是了解逻辑视图与物理视图的对应关系对优化并行I/O性能有很大帮助。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEiDI.gif" alt="Logical_View"></p>
+<p>Lustre将文件划分为N个块，并且以这个块作为最小操作单位。文件分片是Lustre的重要特性，涉及到两个参数<strong><code>stripe count</code>和<code>stripe size</code></strong>，<code>stripe count</code>是指对象数，<strong>即，将文件分布到几个OST上</strong>，也就是说<code>stripe count</code>小于等于OST的数目。Lustre可以支持几千个OST，但是<code>stripe count</code>最大为160。<code>stripe size</code>就是分片大小。Lustre默认的<code>stripe count</code>是1，<code>stripe size</code>是1MiB。</p>
+<p><strong>图4</strong>展示的是逻辑视图与物理视图的对应关系。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEAVP.gif" alt="Physical_and_Logical_Views_of_Striping"></p>
+<p><strong>图5</strong>展示的是一个物理视图上简单的并行I/O。四个进程并行地写一个分布在四个OST上的文件，<code>stripe size</code>是1MiB，每个进程写一个连续的块。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEPKA.gif" alt="Physical_View_of_Striping"></p>
+<ul>
+<li>P0写长度为600,000 byte的记录，起始offset为0，记录分布在OST0上</li>
+<li>P1写长度为1,800,000 byte的记录，起始offset为600,000，记录分布在OST0，OST1和OST2上</li>
+<li>P2写长度为1,200,000 byte的记录，起始offset为2,400,000，记录分布在OST2和OST3上</li>
+<li>P3写长度为1,400,000 byte的记录，起始offset为3,600,000，记录分布在OST3和OST0上</li>
+</ul>
+<p>进程0-3写的记录被Lustre自动分布在不同的OST上，OST0同时接受来自P0、P1和P3的数据，OST2同时接收来自P1和P2的数据，OST3同时接收来自P2和P3的数据。四个OST同时接收数据，这样I/O速度理论上是一个OST接收速度的四倍。但实际上，I/O速度还被其他因素限制。首先是“对齐”限制，由于记录的长度不是<code>stripe size</code>的整数倍，导致offset没有与stripe的边界对齐。其次是“锁”限制，当多个进程同时写同一个OST的同一块数据时，Lustre会给该块数据加上“锁”限制，也就是这一块数据每次只允许一个进程写，属于临界资源，多个进程竞争锁资源，使得并行变串行。</p>
+<p><strong>图6</strong>是<strong>图5</strong>中并行I/O在逻辑视图上的展示。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEV58.gif" alt="Logical_View_of_Striping"></p>
+<h3 id="2-3-Lustre简单设置"><a href="#2-3-Lustre简单设置" class="headerlink" title="2.3 Lustre简单设置"></a>2.3 Lustre简单设置</h3><p><strong>1. 查看OST</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ lfs df -h</span><br><span class="line">UUID                  bytes   Used Available Use% Mounted on</span><br><span class="line">nid00008_mds_UUID    170.9G    1.2G  159.9G   0% /lus/nid00008[MDT:0]</span><br><span class="line">ost0_UUID              1.0T  472.6G  545.7G  44% /lus/nid00008[OST:0]</span><br><span class="line">ost1_UUID              1.0T  418.4G  599.8G  39% /lus/nid00008[OST:1]</span><br><span class="line">ost2_UUID              1.0T  468.8G  549.5G  43% /lus/nid00008[OST:2]</span><br><span class="line">ost3_UUID              1.0T  431.0G  587.3G  40% /lus/nid00008[OST:3]</span><br><span class="line">ost4_UUID              1.0T  449.0G  569.2G  41% /lus/nid00008[OST:4]</span><br><span class="line">ost5_UUID              1.0T  465.8G  552.5G  43% /lus/nid00008[OST:5]</span><br><span class="line">ost6_UUID              1.0T  475.3G  542.9G  44% /lus/nid00008[OST:6]</span><br><span class="line">ost7_UUID              1.0T  466.0G  552.2G  43% /lus/nid00008[OST:7]</span><br><span class="line"></span><br><span class="line">filesystem summary:    8.4T   3.6T   4.4T  42% /lus/nid00008</span><br><span class="line">In this example, there are eight OSTs mounted on file system /lus/nid00008.</span><br></pre></td></tr></table></figure>
+<p><strong>2. 查看<code>stripe count</code>和<code>stripe size</code></strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> /lus/nid00008/user123</span><br><span class="line">$ mkdir newdir</span><br><span class="line">$ lfs getstripe newdir</span><br><span class="line">OBDS:</span><br><span class="line">0: ost0_UUID ACTIVE</span><br><span class="line">1: ost1_UUID ACTIVE</span><br><span class="line">2: ost2_UUID ACTIVE</span><br><span class="line">3: ost3_UUID ACTIVE</span><br><span class="line">4: ost4_UUID ACTIVE</span><br><span class="line">5: ost5_UUID ACTIVE</span><br><span class="line">6: ost6_UUID ACTIVE</span><br><span class="line">7: ost7_UUID ACTIVE</span><br><span class="line">newdir</span><br><span class="line">(Default) stripe_count: 2 stripe_size: 1048576 stripe_offset: 0</span><br></pre></td></tr></table></figure>
+<p>上例中, 默认<code>stripe count</code>是2，<code>stripe size</code>是1MiB。默认设置是在文件系统初始化时配置的。</p>
+<p><strong>3. 设置<code>Stripe Count</code>和<code>Stripe Size</code></strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> /lus/nid00008/user123</span><br><span class="line">$ mkdir newdir</span><br><span class="line">$ lfs setstripe -c 8 -s 1M newdir</span><br></pre></td></tr></table></figure>
+<p>上面的例子中将所有newdir中所有文件的<code>stripe count</code>设置为8，<code>stripe size</code>为1MiB，newdir下所有新创建的文件都适用这一设置。</p>
+<p><strong>注：还有其他方法能改变Lustre的<code>stripe size</code>，如<a href="http://lidawn.github.io/parallel-io-basic-2/#5.5">MPI-IO hints</a></strong></p>
+<h2 id="3-I-O-接口"><a href="#3-I-O-接口" class="headerlink" title="3. I/O 接口"></a>3. I/O 接口</h2><p>并行IO中通常有四种接口，POSIX I/O，MPI I/O，HDF5 I/O，NetCDF-4 I/O，如<strong>图7</strong>所示。MPI应用程序使用一种或者多种I/O接口。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEePS.gif" alt="io_sw_stack"></p>
+<h3 id="3-1-POSIX-I-O"><a href="#3-1-POSIX-I-O" class="headerlink" title="3.1 POSIX I/O"></a>3.1 POSIX I/O</h3><p>POSIX I/O的文件由连续的字节组成。应用程序可直接使用POSIX I/O接口，或者使用C语言库函数间接调用POSIX I/O。基本的POSIX I/O函数如：<code>read()</code>将连续字节串从磁盘转移到内存，<code>write()</code>将连续字节串从内存转移到磁盘，<code>readv()</code>将磁盘中连续的字节串转换成内存中不连续的字节串，<code>writev()</code>将内存中不连续的字节串转换成磁盘中连续的字节串。</p>
+<p>POSIX I/O提供最基本的I/O操作，但是却没有并行I/O的基因。如果要实现POSIX I/O并行，很多事情需要在应用程序中定义，如文件显式的offset。另外POSIX不支持collective操作，也就是说进程中的协作需要应用程序显式地定义。而且如果需要将复杂的数据结构写入到文件中，那必须将（内存中）非连续的块拆分成若干个连续的块，并分别调用POSIX接口写入到文件中。</p>
+<p>如果使用POSIX接口的应用程序对I/O性能有较高要求，那么需要针对具体环境（如进程数、文件系统特性）修改应用程序，但是这样会导致程序的移植性差。</p>
+<blockquote>
+<p><strong><em><a href="http://www.opengroup.org/onlinepubs/009695399/" target="_blank" rel="noopener">POSIX参考资料</a></em></strong></p>
+</blockquote>
+<h3 id="3-2-MPI-I-O"><a href="#3-2-MPI-I-O" class="headerlink" title="3.2 MPI I/O"></a>3.2 MPI I/O</h3><p>MPI I/O提供两种类型的接口:Independent I/O 和Collective I/O.</p>
+<p>Independent I/O中，每个进程独立地处理I/O, Independent I/O基本的操作是，<code>MPI_File_read()</code>和<code>MPI_File_write()</code>。 这两个函数与MPI的send和receive操作很类似。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MPI_File_write</span><span class="params">(MPI_File mpi_fh, <span class="keyword">void</span> *buf, <span class="keyword">int</span> count, MPI_Datatype datatype, MPI_Status *status)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MPI_Send</span><span class="params">(<span class="keyword">void</span> *buf, <span class="keyword">int</span> count, MPI_Datatype datatype, <span class="keyword">int</span> dest, <span class="keyword">int</span> tag, MPI_Comm comm)</span></span></span><br></pre></td></tr></table></figure>
+<p>Collective I/O 中所有进程以特定的顺序调用I/O。 基本的Collective操作: <code>MPI_File_write_all()</code>和<code>MPI_File_read_all()</code>。 与Independent I/O在语法上的差别就是多了一个<code>all</code>后缀。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MPI_File_write</span><span class="params">(MPI_File mpi_fh, <span class="keyword">void</span> *buf, <span class="keyword">int</span> count, MPI_Datatype datatype, MPI_Status *status)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">MPI_File_write_all</span><span class="params">(MPI_File mpi_fh, <span class="keyword">void</span> *buf, <span class="keyword">int</span> count, MPI_Datatype datatype, MPI_Status *status)</span></span></span><br></pre></td></tr></table></figure>
+<p><code>all</code>后缀就意味着MPI通信域中所有拥有文件句柄的进程都都要执行write操作。</p>
+<p>MPI I/O文件是一种有序的数据集合。你可以根据你的应用程序定义合适的数据类型。在自定义数据类型后，在函数<code>MPI_File_set_view()</code>使用。有了这样强大的操作，每个进程都可以定义自己的文件视图，这样做的好处就是你不用再去操心每次IO操作的指针偏移量了。任何读写共享文件的进程都通过<code>MPI_File_set_view()</code>去定义自己要读写的数据。一旦文件视图设置完成，MPI IO程序就自动帮你计算每个进程的指针偏移量。</p>
+<blockquote>
+<p><strong><em><a href="http://lidawn.github.io/parallel-io-basic-2/#5.2.1">MPI I/O 实例</a></em></strong></p>
+</blockquote>
+<p>无论是Independent I/O 还是Collective I/O，MPI 都能提供独立文件指针和显示使用文指针偏移量的函数，方便为不同编程范式提供灵活的编程方式。相比POSIX,MPI I/O提供更高级的数据抽象，你能够使用MPI I/O为并行应用程序定义更复杂的I/O访问模式，从而优化程序性能。</p>
+<p>Independent I/O和POSIX I/O类似，但是也有不同点。<br>POSIX I/O只仅支持连续文件块的读写，Independent I/O支持衍生的数据类型，能够支持非连续的数据读写。</p>
+<p>大多数并行程序都使用Collective I/O，因为Collective I/O能够高效处理多进程同时读写数据。</p>
+<blockquote>
+<p><strong><em><a href="http://www.mpi-forum.org/docs/mpi-2.2/mpi22-report/mpi22-report.htm#Node0" target="_blank" rel="noopener">MPI I/O参考资料</a></em></strong></p>
+</blockquote>
+<h3 id="3-3-HDF5-I-O"><a href="#3-3-HDF5-I-O" class="headerlink" title="3.3 HDF5 I/O"></a>3.3 HDF5 I/O</h3><p>HDF5是跨平台的I/O接口，对复杂的数据对象拥有的良好的兼容性，HDF5提供比MPI I/O更高级的数据抽象。<br>HDF5 I/O的基本操作是<code>H5Dread()</code>和 <code>H5Dwrite()</code>。<br>MPI I/O一次只能处理一个I/O操作，HDF5将多个I/O操作作为一个逻辑实体操作，因此比MPI I/O拥有更多的优化可能性，也可以为MPI I/O提供hints。<br>HDF5文件采用“自描述”模式，意味着文件包含描述数据类型的信息。“自描述”类型的文件是跨平台的。</p>
+<blockquote>
+<p><strong><em><a href="http://www.hdfgroup.org/HDF5/doc/H5.intro.html" target="_blank" rel="noopener">HDF5参考资料</a></em></strong></p>
+</blockquote>
+<h3 id="3-4-NetCDF-4-I-O"><a href="#3-4-NetCDF-4-I-O" class="headerlink" title="3.4 NetCDF-4 I/O"></a>3.4 NetCDF-4 I/O</h3><p>与HDF5类似，NetCDF-4 也是跨平台的I/O接口，通过NetCDF-4接口你可以创建，访问，共享阵列型数据。NetCDF-4 提供比MPI I/O更高级的数据抽象. NetCDF-4 将数据视为相互联系的阵列集合。NetCDF-4 数据模型包括变量，维度，属性和用户自定义的数据类型。</p>
+<p>NetCDF-4 文件同样是“自描述”。NetCDF-4提供的数据也可以被使用HDF5接口的应用程序访问。</p>
+<blockquote>
+<p><strong><em><a href="http://www.unidata.ucar.edu/software/netcdf/docs/" target="_blank" rel="noopener">NetCDF参考资料</a></em></strong></p>
+</blockquote>
+<h2 id="4-I-O-策略"><a href="#4-I-O-策略" class="headerlink" title="4. I/O 策略"></a>4. I/O 策略</h2><p>并行程序通常是一个或多个进程读写一个或多个文件，I/O模式有以下四种情况：</p>
+<ol>
+<li>每个进程一个文件（FPP）: 所有进程参与写。</li>
+<li>一个共享文件: 一个进程参与写。</li>
+<li>一个共享文件: 所有进程参与写。</li>
+<li>一个共享文件: 部分进程参与写。</li>
+</ol>
+<p>事实上没有一个一劳永逸的I/O策略，对不同的应用程序，不同的进程数，最优化的I/O策略总是不同的。</p>
+<h3 id="4.1"> 4.1 每个进程一个文件（FPP）——所有进程参与写</h3>
+
+<p>每个进程写一个文件，<strong>如图8</strong>所示，通常情况下由于多个OST可以支持多文件并行读写，这种策略显得简单有效。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEm8g.gif" alt="file_per_process"></p>
+<p>但是当大量文件同时打开或关闭时，所有文件的元数据都靠一个MDT处理，给MDT造成很大压力而性能下降，同时当进程与OST的比率较大时(多少比率)是，也会给OST带来很大压力，因此当应用程序规模较大时，不建议采用这种策略。</p>
+<h3 id="4.2"> 4.2 一个共享文件——一个进程参与写</h3>
+
+<p>该策略下，所有参加I/O的进程将写请求统一发送给一个进程，由这个进程一次写入到共享文件中。<strong>如图9</strong>所示P1-P3将写请求发送给P0,P0将P0-P3的数据一次写入到共享文件中。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEQrn.gif" alt="file_writing"></p>
+<p>这种策略使用的是被称作聚合器（aggregator）的技术，使用某个进程作为聚合器，其他进程将数据发送给聚合器，聚合器进行整合并写入文件。</p>
+<p>显而易见，这种策略不会给MDT带来任何压力，因为所有数据都已经提前被聚合，MDT只接受一次请求，但是该策略有不足之处，显然这种操作是串行的，写带宽就是一个进程写入时所能带来的带宽。</p>
+<h3 id="4.3"> 4.3 一个共享文件——所有进程参与写</h3>
+
+<p><strong>如图10示</strong>所有进程同时写一个共享文件。该策略需要应用程序计算每个进程的文件指针偏移量，以防止应用程序之间的数据篡写。由于所有进程都在同时写，所以I/O过程是并行的。这种方法有一个缺点就是文件块大于<code>stripe size</code>时，每个OST都要同时服务多个进程，会导致磁盘的频繁寻道<a href="http://dl.acm.org/citation.cfm?id=1810116" target="_blank" rel="noopener">参考文献ICS’10</a>。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEn2Q.gif" alt="all_files_writing"></p>
+<h3 id="4.4"> 4.4 一个共享文件——部分进程参与写</h3>
+
+<p>如<strong>图11所示</strong>，通过聚合器，数据被聚合成多个子集，同时写入一个共享文件。由于写次数减少，MDT的瓶颈问题也得到缓解。这种策略是<strong>4.1</strong>和<strong>4.2</strong>的平衡，保证并行性的同时减少I/O竞争。所以寻找最佳性能平衡点是采用这种I/O策略的难点，因为平衡点可能会随着数据集的大小或者I/O系统特性的不同而变化。这种优化方法的实现有著名的’<a href="http://www.mcs.anl.gov/research/projects/romio/doc/users-guide/node5.html" target="_blank" rel="noopener">two phase io</a>‘，被集成在ROMIO中。</p>
+<p><img src="https://s1.ax1x.com/2018/11/23/FiEuvj.gif" alt="subset_of_files_writing"></p>
+<h3 id="4-5-I-O策略指导原则"><a href="#4-5-I-O策略指导原则" class="headerlink" title="4.5 I/O策略指导原则"></a>4.5 I/O策略指导原则</h3><ul>
+<li>当进程数量少且每个进程操作的数据量较大时，考虑使用FPP策略（<a href="#4.1">4.1</a>）。</li>
+<li>当数据量较小时，考虑使用一次写单个共享文件策略（<a href="#4.2">4.2</a>）</li>
+<li>当每个进程操作的数据量较大且进程数与OST的比值较小时，考虑使用同时写单个共享文件策略（<a href="#4.3">4.3</a>）</li>
+<li>当进程数较多且数据量较大时，考虑使用划分子集写共享文件的策略（<a href="#4.4">4.4</a>），并选择好子集的数目。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/I-O/" rel="tag"># I/O</a>
+          
+            <a href="/tags/HPC-I-O/" rel="tag"># HPC-I/O</a>
+          
+            <a href="/tags/Parallel-I-O/" rel="tag"># Parallel-I/O</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/04/11/python-baidu-image-crawler/" rel="next" title="简单的百度图片爬虫">
+                <i class="fa fa-chevron-left"></i> 简单的百度图片爬虫
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/03/interesting-nanking/" rel="prev" title="去南京">
+                去南京 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">大栗子</p>
+              <p class="site-description motion-element" itemprop="description">IT,Life,逗比.</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-并行I-O介绍"><span class="nav-number">1.</span> <span class="nav-text">1. 并行I/O介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-并行文件系统与文件视图"><span class="nav-number">2.</span> <span class="nav-text">2. 并行文件系统与文件视图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-并行文件系统"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 并行文件系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-文件的物理视图和逻辑视图"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 文件的物理视图和逻辑视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Lustre简单设置"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Lustre简单设置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-I-O-接口"><span class="nav-number">3.</span> <span class="nav-text">3. I/O 接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-POSIX-I-O"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 POSIX I/O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-MPI-I-O"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 MPI I/O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-HDF5-I-O"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 HDF5 I/O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-NetCDF-4-I-O"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 NetCDF-4 I/O</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-I-O-策略"><span class="nav-number">4.</span> <span class="nav-text">4. I/O 策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4.1"><span class="nav-number">4.1.</span> <span class="nav-text"> 4.1 每个进程一个文件（FPP）——所有进程参与写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4.2"><span class="nav-number">4.2.</span> <span class="nav-text"> 4.2 一个共享文件——一个进程参与写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4.3"><span class="nav-number">4.3.</span> <span class="nav-text"> 4.3 一个共享文件——所有进程参与写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4.4"><span class="nav-number">4.4.</span> <span class="nav-text"> 4.4 一个共享文件——部分进程参与写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-5-I-O策略指导原则"><span class="nav-number">4.5.</span> <span class="nav-text">4.5 I/O策略指导原则</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">大栗子</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: 'ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz',
+        appKey: 'mn4p5kSMuj83sTfEmFPEYL4d',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'20' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ko6l8xFspD4CbRWPXXQ59oKH-gzGzoHsz", "mn4p5kSMuj83sTfEmFPEYL4d");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
