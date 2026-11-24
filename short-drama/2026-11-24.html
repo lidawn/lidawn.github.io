@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>爆款短剧榜 · 2026-11-24</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#1a1d24;--sub:#6b7280;--line:#e8eaee;--red:#e5484d;--redsoft:#fdecec;--accent:#4f46e5;--shadow:0 2px 12px rgba(20,24,40,.06)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.65;font-size:15px}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 60px}
+header{background:linear-gradient(135deg,#1f2430 0%,#2d3343 100%);color:#fff;padding:30px 20px 26px;border-radius:0 0 22px 22px;margin-bottom:18px}
+header h1{margin:0 0 6px;font-size:25px;letter-spacing:.5px}
+header .date{font-size:13px;opacity:.78}
+header .lead{margin-top:14px;font-size:13px;line-height:1.7;opacity:.9}
+nav{position:sticky;top:0;z-index:20;background:rgba(245,246,248,.94);backdrop-filter:blur(8px);display:flex;gap:8px;overflow-x:auto;padding:10px 0;margin-bottom:8px;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{flex:none;padding:7px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--sub);text-decoration:none;font-size:13px;white-space:nowrap}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+section{margin-top:26px;scroll-margin-top:60px}
+h2{font-size:19px;margin:0 0 4px;padding-left:11px;border-left:4px solid var(--red)}
+h3{font-size:15px;margin:18px 0 10px;color:#374151}
+.note{font-size:12.5px;color:var(--sub);background:#eef0f3;border-radius:10px;padding:10px 12px;margin:8px 0 14px}
+.note b{color:var(--ink)}
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:10px}
+.rank-card{display:flex;gap:12px;align-items:flex-start}
+.rank-no{flex:none;width:32px;height:32px;border-radius:10px;background:#f0f1f4;color:#6b7280;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center}
+.rank-no.top3{background:var(--red);color:#fff}
+.rank-body{flex:1;min-width:0}
+.rank-title{font-size:15.5px;font-weight:650;line-height:1.4}
+.rank-meta{margin:5px 0 8px;font-size:12.5px;color:var(--sub)}
+.type-tag{display:inline-block;padding:1px 8px;border-radius:6px;font-size:11px;font-weight:600;margin-right:6px}
+.t-real{background:#eef2ff;color:#4338ca}
+.t-ai{background:#ecfdf5;color:#047857}
+.t-man{background:#fff7ed;color:#c2410c}
+.t-other{background:#f3f4f6;color:#4b5563}
+.badge-new{background:var(--redsoft);color:var(--red);font-size:10px;padding:1px 6px;border-radius:5px;vertical-align:middle;margin-left:4px}
+.heat-bar{height:5px;background:#f0f1f4;border-radius:99px;overflow:hidden;margin:2px 0 8px}
+.heat-fill{height:100%;background:linear-gradient(90deg,#f59e0b,var(--red));border-radius:99px}
+.stat-row{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--sub)}
+.stat-row b{color:var(--ink)}
+.feat-card{border-left:3px solid var(--accent)}
+.feat-title{font-weight:650;font-size:15px;margin-bottom:8px}
+.feat-data{font-size:12.5px;color:#b45309;background:#fffbeb;border-radius:8px;padding:7px 10px;margin-bottom:8px}
+.feat-plot{font-size:14px;color:#374151}
+.feat-link{font-size:12px;margin-top:8px;color:var(--sub)}
+.mini-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;margin-bottom:9px}
+.mini-title{font-weight:650;font-size:14.5px;margin-bottom:4px}
+.mini-meta{font-size:12px;color:#b45309;margin-bottom:4px}
+.mini-theme{margin:4px 0}
+.mini-plot{font-size:13.5px;color:#374151}
+.mini-src{font-size:11.5px;margin-top:6px}
+.eps{font-size:11px;color:var(--sub);font-weight:400}
+ul{padding-left:20px;margin:8px 0}
+li{margin-bottom:8px;font-size:13.5px;color:#374151}
+.avai li{list-style:none;margin-left:-20px}
+.allnew{text-align:center;color:var(--sub);font-size:13px;padding:18px}
+a{color:var(--accent)}
+footer{text-align:center;color:var(--sub);font-size:11.5px;margin-top:32px;padding-top:18px;border-top:1px solid var(--line)}
+@media(min-width:600px){.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid2 .mini-card{margin-bottom:0}}
+</style>
+</head>
+<body>
+<header>
+  <h1>爆款短剧榜</h1>
+  <div class="date">2026-11-24 · 每日独立简报</div>
+  <div class="lead">只收录热度上升的爆款短剧，补齐剧情简介、题材与可核实数据。全品类（真人剧 / AI 剧 / 漫剧）一视同仁，以「上升趋势」为第一优先。</div>
+</header>
+<div class="wrap">
+<nav>
+  <a href="#s0" class="on">口径说明</a>
+  <a href="#s1">国内热榜</a>
+  <a href="#s2">新剧观察</a>
+  <a href="#s3">结构性信号</a>
+  <a href="#s4">行业参照</a>
+</nav>
+
+<section id="s0">
+  <h2>数据可得性说明</h2>
+  <div class="note">口径红线：热度值 / 播放量 / 收藏点赞 / 热播指数是<b>不同维度，不可横向比较</b>。数据需核实；榜单只反映<b>当下热、不代表口碑与收益</b>。</div>
+  <ul class="avai"><li>剧查查热力值｜❌ 无法直接抓取：剧查查是 DataEye 旗下<strong>微信小程序</strong>，无公开网页榜、热力值需微信登录查看。媒体转引的热力值一律标「媒体转引、需核实」，不冒充一手数据。</li><li>集数 / 时长 / 上架首投日｜✅ 抓得到：短剧数据库 <code>zongyimi.com</code>、单剧页 <code>duanjugongcheng.com</code>、百度百科。</li><li>热播指数 / 日环比 / 超额表现 / 起量形态 / 在榜天数｜✅ 抓得到：<code>duanjugongcheng.com</code> 单剧页，按抖音日榜播放量、完播率、搜索量、互动量综合计算；标签是模型从简介抽取，<strong>不是剧情梗概</strong>。</li><li>剧情简介 / 题材 / 角色｜✅ 抓得到：<code>novelquickapp.com</code> 红果热播榜与 AI 剧榜，每部剧带完整简介、题材、主要角色——剧情简介首选来源。</li></ul>
+</section>
+
+<section id="s1">
+  <h2>国内热榜</h2>
+  <div class="note">主源：<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank">红果热播榜</a>（抓取 11-24）· <a href="https://www.novelquickapp.com/rank/hot-ai-drama" target="_blank">AI 剧热播榜</a>。榜首《谁让这个文盲修仙的第七季》连续第二日 TOP1，热度回落至 9096 万（环比 -15%）。</div>
+  <h3>红果热播榜 TOP20</h3>
+  
+    <div class="card rank-card">
+      <div class="rank-no top3">1</div>
+      <div class="rank-body">
+        <div class="rank-title">谁让这个文盲修仙的第七季 <span class="badge-new">新剧</span></div>
+        <div class="rank-meta"><span class="type-tag t-man">漫剧</span> <span class="theme">玄幻·陈极/林琅天</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:100.0%"></div></div>
+        <div class="stat-row"><span>热度 <b>9096万</b></span><span>评分 <b>9.6</b></span><span>收藏 113万</span><span>点赞 438.1万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no top3">2</div>
+      <div class="rank-body">
+        <div class="rank-title">穿越八零，我把娘俩宠成宝 </div>
+        <div class="rank-meta"><span class="type-tag t-ai">AI剧</span> <span class="theme">逆袭·赵乾志/陈芸</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:84.1%"></div></div>
+        <div class="stat-row"><span>热度 <b>7650万</b></span><span>评分 <b>8.0</b></span><span>收藏 171.1万</span><span>点赞 627.3万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no top3">3</div>
+      <div class="rank-body">
+        <div class="rank-title">全球死考：刚下刑场你让我去考试一季 </div>
+        <div class="rank-meta"><span class="type-tag t-man">漫剧</span> <span class="theme">奇幻·夜林/贺铮</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:79.3%"></div></div>
+        <div class="stat-row"><span>热度 <b>7211万</b></span><span>评分 <b>9.2</b></span><span>收藏 466.6万</span><span>点赞 1297.4万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">4</div>
+      <div class="rank-body">
+        <div class="rank-title">和离后我带女儿横扫魔域第三季完结篇 <span class="badge-new">新剧</span></div>
+        <div class="rank-meta"><span class="type-tag t-man">漫剧</span> <span class="theme">玄幻·陆清安/陆淼淼</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:74.7%"></div></div>
+        <div class="stat-row"><span>热度 <b>6797万</b></span><span>评分 <b>9.3</b></span><span>收藏 83.6万</span><span>点赞 296.3万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">5</div>
+      <div class="rank-body">
+        <div class="rank-title">公路求生榜一说她要走到公路尽头第三季 </div>
+        <div class="rank-meta"><span class="type-tag t-man">漫剧</span> <span class="theme">奇幻·戚许</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:74.0%"></div></div>
+        <div class="stat-row"><span>热度 <b>6733万</b></span><span>评分 <b>9.5</b></span><span>收藏 129万</span><span>点赞 348.9万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">6</div>
+      <div class="rank-body">
+        <div class="rank-title">莞城人生 </div>
+        <div class="rank-meta"><span class="type-tag t-ai">AI剧</span> <span class="theme">逆袭·陈欢/赵红梅</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:73.1%"></div></div>
+        <div class="stat-row"><span>热度 <b>6646万</b></span><span>评分 <b>8.2</b></span><span>收藏 81.7万</span><span>点赞 225.8万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">7</div>
+      <div class="rank-body">
+        <div class="rank-title">和离后我带女儿横扫魔域 </div>
+        <div class="rank-meta"><span class="type-tag t-man">漫剧</span> <span class="theme">玄幻·陆清安/陆淼淼</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:73.0%"></div></div>
+        <div class="stat-row"><span>热度 <b>6639万</b></span><span>评分 <b>9.1</b></span><span>收藏 771.3万</span><span>点赞 2866.9万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">8</div>
+      <div class="rank-body">
+        <div class="rank-title">退役归来，这个保镖不好惹第三季 <span class="badge-new">新剧</span></div>
+        <div class="rank-meta"><span class="type-tag t-ai">AI剧</span> <span class="theme">都市·陈云东/张雨涵</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:71.5%"></div></div>
+        <div class="stat-row"><span>热度 <b>6502万</b></span><span>评分 <b>9.3</b></span><span>收藏 38.3万</span><span>点赞 54.1万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">9</div>
+      <div class="rank-body">
+        <div class="rank-title">减肥系男神，减一斤一个亿 </div>
+        <div class="rank-meta"><span class="type-tag t-ai">AI剧</span> <span class="theme">都市·李航/江映雪</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:68.3%"></div></div>
+        <div class="stat-row"><span>热度 <b>6215万</b></span><span>评分 <b>7.8</b></span><span>收藏 82.3万</span><span>点赞 261.4万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">10</div>
+      <div class="rank-body">
+        <div class="rank-title">持械入宋：第十一季 </div>
+        <div class="rank-meta"><span class="type-tag t-ai">AI剧</span> <span class="theme">古装·林昭/陈素</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:67.9%"></div></div>
+        <div class="stat-row"><span>热度 <b>6179万</b></span><span>评分 <b>9.7</b></span><span>收藏 127.5万</span><span>点赞 293.3万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">11</div>
+      <div class="rank-body">
+        <div class="rank-title">母凭子贵后被皇家宠上天3 <span class="badge-new">新剧</span></div>
+        <div class="rank-meta"><span class="type-tag t-real">真人剧</span> <span class="theme">爱情·陈杨婷丹/代高政</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:67.0%"></div></div>
+        <div class="stat-row"><span>热度 <b>6098万</b></span><span>评分 <b>9.1</b></span><span>收藏 74.7万</span><span>点赞 154.2万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">12</div>
+      <div class="rank-body">
+        <div class="rank-title">同学会笑我乡下养猪，却不知我身价过亿 </div>
+        <div class="rank-meta"><span class="type-tag t-ai">AI剧</span> <span class="theme">都市·韩守业/周海峰</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:66.3%"></div></div>
+        <div class="stat-row"><span>热度 <b>6033万</b></span><span>评分 <b>8.0</b></span><span>收藏 48.9万</span><span>点赞 132.6万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">13</div>
+      <div class="rank-body">
+        <div class="rank-title">嫌疑人的秘密2藏金生死线 <span class="badge-new">新剧</span></div>
+        <div class="rank-meta"><span class="type-tag t-real">真人剧</span> <span class="theme">剧情·苗峰/曲美霖</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:65.4%"></div></div>
+        <div class="stat-row"><span>热度 <b>5948万</b></span><span>评分 <b>7.9</b></span><span>收藏 69万</span><span>点赞 163.4万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">14</div>
+      <div class="rank-body">
+        <div class="rank-title">伪人降临！我是全场唯一预言家第六季 </div>
+        <div class="rank-meta"><span class="type-tag t-man">漫剧</span> <span class="theme">奇幻·林羊/系统</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:65.0%"></div></div>
+        <div class="stat-row"><span>热度 <b>5908万</b></span><span>评分 <b>9.0</b></span><span>收藏 51.6万</span><span>点赞 159.7万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">15</div>
+      <div class="rank-body">
+        <div class="rank-title">少夫人来自东北3 <span class="badge-new">新剧</span></div>
+        <div class="rank-meta"><span class="type-tag t-real">真人剧</span> <span class="theme">家庭·梁雯晶/业文Kevin</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:64.6%"></div></div>
+        <div class="stat-row"><span>热度 <b>5878万</b></span><span>评分 <b>9.6</b></span><span>收藏 181.7万</span><span>点赞 350.6万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">16</div>
+      <div class="rank-body">
+        <div class="rank-title">退役归来，这个保镖不好惹 </div>
+        <div class="rank-meta"><span class="type-tag t-ai">AI剧</span> <span class="theme">逆袭·陈云东/张雨涵</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:63.8%"></div></div>
+        <div class="stat-row"><span>热度 <b>5806万</b></span><span>评分 <b>8.8</b></span><span>收藏 229.2万</span><span>点赞 442万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">17</div>
+      <div class="rank-body">
+        <div class="rank-title">魔神人生:弃子问天第三季 </div>
+        <div class="rank-meta"><span class="type-tag t-man">漫剧</span> <span class="theme">逆袭·叶秋/明月</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:63.8%"></div></div>
+        <div class="stat-row"><span>热度 <b>5802万</b></span><span>评分 <b>9.0</b></span><span>收藏 50.9万</span><span>点赞 174.5万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">18</div>
+      <div class="rank-body">
+        <div class="rank-title">废土黑作坊：从造一级弹开始 </div>
+        <div class="rank-meta"><span class="type-tag t-man">漫剧</span> <span class="theme">灾难·苏默/神秘少女</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:63.7%"></div></div>
+        <div class="stat-row"><span>热度 <b>5794万</b></span><span>评分 <b>8.1</b></span><span>收藏 93.6万</span><span>点赞 238.1万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">19</div>
+      <div class="rank-body">
+        <div class="rank-title">持械入宋：第一季 </div>
+        <div class="rank-meta"><span class="type-tag t-ai">AI剧</span> <span class="theme">古装·马振邦/林昭</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:63.5%"></div></div>
+        <div class="stat-row"><span>热度 <b>5780万</b></span><span>评分 <b>9.5</b></span><span>收藏 580.3万</span><span>点赞 685.6万</span></div>
+      </div>
+    </div>
+    <div class="card rank-card">
+      <div class="rank-no ">20</div>
+      <div class="rank-body">
+        <div class="rank-title">莞城人生第二季 </div>
+        <div class="rank-meta"><span class="type-tag t-ai">AI剧</span> <span class="theme">逆袭·赵红梅/陈欢</span></div>
+        <div class="heat-bar"><div class="heat-fill" style="width:63.5%"></div></div>
+        <div class="stat-row"><span>热度 <b>5778万</b></span><span>评分 <b>8.6</b></span><span>收藏 33.2万</span><span>点赞 70.9万</span></div>
+      </div>
+    </div>
+  <h3>重点剧详展</h3>
+  
+    <div class="card feat-card">
+      <div class="feat-title">① 谁让这个文盲修仙的第七季 · 红果热播榜 TOP1 · 漫剧·玄幻</div>
+      <div class="feat-data">热度 9096 万 / 评分 9.6 / 113 万收藏 / 438.1 万点赞 / 新剧（<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">红果榜</a>）</div>
+      <div class="feat-plot">陈极一行人深入西天佛境，周旋金蝉获授《浮屠镇世经》，融半佛半魔根基铸成浮屠镇世塔；又赴青晏天宗接回传人楚砚天，识破老祖掠夺天道体阴谋。他凝聚第五道雷霆元婴、深入火麟古地取赤仙九叶莲，浩然之巅激战天骄无渡自创逆乱八式，东陵百族苏醒、大陆新危机降临。<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">来源</a></div>
+      <div class="feat-link"><a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">红果榜</a> · <a href="https://www.duanjugongcheng.com/cn/bangdan/ju/shui-rang-zhe-ge-wen-mang-xiu-xian-de-di-qi-ji" target="_blank" rel="noopener">单剧页</a></div>
+    </div>
+    <div class="card feat-card">
+      <div class="feat-title">② 穿越八零，我把娘俩宠成宝 · 红果热播榜 TOP2 / AI 剧榜 TOP1 · AI剧·逆袭</div>
+      <div class="feat-data">热度 7650 万 / 评分 8.0 / 171.1 万收藏 / 627.3 万点赞（<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">红果榜</a>）</div>
+      <div class="feat-plot">现代生意人赵乾志因车祸穿越到八十年代，成为同名的乡村无赖丈夫。面对长期遭家暴、贫困欺凌的陈芸母女，他决心改变原身生活方式、承担家庭责任，凭现代见识从古董、药材生意起步经商致富；陈芸从恐惧防备到逐渐信任，两人在共同创业中建立感情，最终带女儿在城市站稳脚跟。<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">来源</a></div>
+      <div class="feat-link"><a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">红果榜</a> · <a href="https://www.duanjugongcheng.com/cn/bangdan/ju/chuan-yue-ba-ling-wo-ba-niang-lia-chong-cheng-bao" target="_blank" rel="noopener">单剧页</a></div>
+    </div>
+    <div class="card feat-card">
+      <div class="feat-title">③ 全球死考：刚下刑场你让我去考试一季 · 红果热播榜 TOP3 · 漫剧·奇幻</div>
+      <div class="feat-data">热度 7211 万 / 评分 9.2 / <strong>466.6 万收藏 / 1297.4 万点赞</strong>（收藏点赞为榜内前列）/（<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">红果榜</a>）</div>
+      <div class="feat-plot">三千万考生被拖入死亡高考，六十分不是及格、是买命。军方破局的底牌竟是十八岁的重犯夜林，面对异种、尸潮与厉鬼，他凭一把枪和近乎残酷的推理带同伴杀出绝境。直到仙门开启、万米仙尸被铁链吊起，他才发现人类拼命寻找的生路，竟通向神明的坟场。<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">来源</a></div>
+      <div class="feat-link"><a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">红果榜</a></div>
+    </div>
+    <div class="card feat-card">
+      <div class="feat-title">④ 和离后我带女儿横扫魔域第三季完结篇 · 红果热播榜 TOP4 · 漫剧·玄幻 🆕</div>
+      <div class="feat-data">热度 6797 万 / 评分 9.3 / 83.6 万收藏 / 296.3 万点赞 / 新剧</div>
+      <div class="feat-plot">陆清安与雪天妃携手开启永夜大陆新篇章，雪天妃凭经商才能拓展四方版图，李文松广结强者让永夜宗声名远扬。陆清安前往陨神海寻珍贵机缘、踏入鸿蒙圣界参悟大道，最终大道圆满、与妻儿亲友欢聚。<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">来源</a></div>
+      <div class="feat-link"><a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">红果榜</a></div>
+    </div>
+    <div class="card feat-card">
+      <div class="feat-title">⑤ 和离后我带女儿横扫魔域 · 红果热播榜 TOP7 · 漫剧·玄幻</div>
+      <div class="feat-data">热度 6639 万 / 评分 9.1 / <strong>771.3 万收藏 / 2866.9 万点赞</strong>（点赞为全榜最高）</div>
+      <div class="feat-plot">永夜魔帝陆清安功成名就后回归烟火生活，一次人生转折让他带两个女儿重返魔域。表面低调随和的他实力深不可测，面对女儿修行、亲友来访与各方奇遇总能从容化解，把珍贵功法、神兵与机缘送到家人身边，最终守住初心迎来圆满。<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">来源</a></div>
+      <div class="feat-link"><a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">红果榜</a></div>
+    </div>
+    <div class="card feat-card">
+      <div class="feat-title">⑥ 母凭子贵后被皇家宠上天3 · 红果热播榜 TOP11 · 真人剧·爱情 🆕</div>
+      <div class="feat-data">热度 6098 万 / 评分 9.1 / 74.7 万收藏 / 154.2 万点赞 / 新剧</div>
+      <div class="feat-plot">黛蜜梨被未婚夫退婚、还被逼做妾，走投无路参加镇北王选妃。萧戡身中奇毒、双腿残疾自责想自尽，她以命挡剑救下他并告诉他百姓需要他。萧戡选她为妃，婚后两人互相救赎——她帮他解毒，他处处护她，最终过上幸福日子。<a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">来源</a></div>
+      <div class="feat-link"><a href="https://www.novelquickapp.com/rank/hot-drama" target="_blank" rel="noopener">红果榜</a></div>
+    </div>
+  <h3>其余上榜剧一句话梗概</h3>
+  <div class="card"><ul><li><b>公路求生榜一说她要走到公路尽头第三季</b>：末世独孤求败断情绝爱成为首位五级车主，被烙七七追杀印记却视追杀者为散财童子，合区强者围杀与龙族降临时求生战开启。</li><li><b>莞城人生</b>：2005 年陈欢被女友卷走母亲救命钱，揣 85 元南下莞城，凭修电器绝活从电子厂打螺丝做到「欢哥维修」，在黑市大佬紧逼下站稳脚跟。</li><li><b>退役归来，这个保镖不好惹第三季</b>：陈云东帮张雨涵看清发小真面目后开早餐店，柳若云、张雨涵接连到访，事业起步同时协助李欣调查案件。</li><li><b>减肥系男神，减一斤一个亿</b>：超重新生李航绑定「减肥震惊系统」，每减一斤奖一亿、震惊值可兑换歌喉颜值背景，逆袭成名校校草与屠榜才子。</li><li><b>持械入宋：第十一季</b>：现代五人小队穿越北宋，林昭挥军渡河连破西境防线，王浩川为京城布局，南境西境较量从前线延伸到朝堂使臣交锋。</li><li><b>同学会笑我乡下养猪，却不知我身价过亿</b>：丰年集团董事长韩守业穿旧夹克参加同学会被当养猪户嘲讽，直到集团周年会上身份揭晓，众人才知他是众人想高攀的创始人。</li><li><b>嫌疑人的秘密2藏金生死线</b>：陈峰为给尿毒症女儿凑手术费到境外非法淘金，私藏狗头金层层闯关，矿友老鬼临死留下被害工人名册托他推翻淘金场。</li><li><b>伪人降临！我是全场唯一预言家第六季</b>：林羊通关副本回安全区，为复活队友找撒旦之心碎片，获得预言家+战士双身份，每日查验一人身份带众人闯险关。</li><li><b>少夫人来自东北3</b>：东北女孩钱小卉随夫赴伦敦寿宴遭堂哥排挤、大爷爷否定，凭爽朗真诚化解继承权争夺、帮大爷爷寻回故乡亲人，赢得周家认可。</li><li><b>退役归来，这个保镖不好惹</b>：强者陈云东回归都市与妹妹相依为命，被迫当女总裁保镖并展露惊人本领，街头事件牵出父母隐秘往事。</li><li><b>魔神人生:弃子问天第三季</b>：葬主率尸军压境，叶秋借河洛书与人皇幡召鳄主镇压，战后叶清罪行败露，叶秋赴昆仑寻宝又陷入柳家老祖夺舍阴谋。</li><li><b>废土黑作坊：从造一级弹开始</b>：苏默穿越到废土巨构「沧墟方舟」底层，觉醒「专注到底」天赋靠复装一级弹生存，做空弹壳赚第一桶金并注册拾荒队。</li><li><b>持械入宋：第一季</b>：现代五人小队携械穿越北宋，京片子队长林昭统帅全局，东北狙击手、广东通信兵、湘妹子医官各显神通，科技降维碾压大宋。</li><li><b>莞城人生第二季</b>：承接陈欢南下莞城创业线，凭修电器绝活立足、与红姐并肩在黑市大佬紧逼下站到城市最亮处。</li></ul></div>
+  <h3>媒体历史快照 · 网易真人剧 TOP10（需核实）</h3>
+  <div class="grid2">
+    <div class="mini-card">
+      <div class="mini-title">首辅娇娘</div>
+      <div class="mini-meta">9.4 分 / 6837 万 / 375.8 万赞 / 192.3 万藏 / 播放破 10 亿</div>
+      <div class="mini-theme"><span class="type-tag t-real">古装/先婚后爱/空间</span></div>
+      <div class="mini-plot">现代杀手顾娇穿越成侯府真千金，嫁落魄赘婿萧六郎，被迫和离反而心意更坚，双向救赎（4 天破 10 亿）</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">十八岁太奶奶驾到第五部</div>
+      <div class="mini-meta">9.6 分 / 首日热度 12068 万 / 927.4 万赞 / 359.3 万藏 / 6 天破 10 亿</div>
+      <div class="mini-theme"><span class="type-tag t-real">家庭/轻喜剧/缉毒</span></div>
+      <div class="mini-plot">太奶奶容遇带全家扮穷测试认亲前妻，最终拐到六重孙缉毒警察断绝关系默默奉献的正能量收尾</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">一江春水</div>
+      <div class="mini-meta">9.3 分 / 5697 万 / 169.5 万赞 / 84.9 万藏 / 真人剧新剧榜第 1</div>
+      <div class="mini-theme"><span class="type-tag t-real">校园/暗恋</span></div>
+      <div class="mini-plot">江春水鼓起勇气表白，男主宋明清当场同意，接触后才发现他偷偷暗恋她五年</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">枝头春意闹</div>
+      <div class="mini-meta">9.4 分 / 6401 万 / 352.5 万赞 / 180.8 万藏</div>
+      <div class="mini-theme"><span class="type-tag t-real">古风/甜宠/轻权谋</span></div>
+      <div class="mini-plot">宋枝为躲狗官谎称能给体弱国公裴修衍冲喜、扬言三年抱俩，吹牛当场撞正主</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">王妈在顾家当保姆后全家只会搞笑了</div>
+      <div class="mini-meta">9.1 分 / 5641 万 / 857.5 万赞 / 331.8 万藏 / 热播榜 TOP3</div>
+      <div class="mini-theme"><span class="type-tag t-real">豪门/喜剧/反转</span></div>
+      <div class="mini-plot">豪爽耿直的保姆王妈怼人解气，顾家总裁顾景琛与妻子何娜娜日常摩擦，豪门藏着秘辛（86 集）</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">一念沉沦，霍总心动了</div>
+      <div class="mini-meta">9.1 分 / 6334 万 / 286.7 万赞 / 152.2 万藏 / 热播榜第 2</div>
+      <div class="mini-theme"><span class="type-tag t-real">都市/甜宠/拉扯</span></div>
+      <div class="mini-plot">腹黑傲娇霸总霍衍与职场新人姜晚克制暧昧拉扯，无雌竞、无工业糖精</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">归路</div>
+      <div class="mini-meta">9.2 分 / 5561 万 / 202.7 万赞 / 113.2 万藏 / 播放 10 亿+</div>
+      <div class="mini-theme"><span class="type-tag t-real">都市/破镜重圆</span></div>
+      <div class="mini-plot">投资人归晓与排爆特警路炎晨年少相爱因现实分开，十年后重逢解开心结，致敬特警家属等候</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">京夜诱温</div>
+      <div class="mini-meta">9.1 分 / ~6000 万 / 293 万赞 / 185.8 万藏 / 抖音播放 2.3 亿</div>
+      <div class="mini-theme"><span class="type-tag t-real">都市/甜宠/闺蜜</span></div>
+      <div class="mini-plot">京台女记者温稚走过最远的路是「闺蜜那个难相处的弟弟贺宴今」的套路，相遇全是他蓄谋已久</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">小镇是非多之同床异梦</div>
+      <div class="mini-meta">7.9 分 / 6491 万 / 106.7 万赞 / 52.2 万藏 / 真人热播榜第 1</div>
+      <div class="mini-theme"><span class="type-tag t-real">现实/婚姻/犯罪</span></div>
+      <div class="mini-plot">柳如意贪图高收益大饼，掏空丈夫 50 万买挖掘机的钱、抵押房子借网贷，最终离婚收场</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">二婚嫁对人，前夫悔破防</div>
+      <div class="mini-meta">8.2 分 / 5532 万 / 61.7 万赞 / 26.5 万藏 / 必看月榜第 3</div>
+      <div class="mini-theme"><span class="type-tag t-real">现实/二婚/逆袭</span></div>
+      <div class="mini-plot">江雪婚后三年未育被婆家逼离，走投无路与萧晏定下婚姻，两个婚姻对比、互相慰藉把日子过红火</div>
+    </div></div>
+</section>
+
+<section id="s2">
+  <h2>新剧 / 潜力观察</h2>
+  <div class="note">头部实时榜只覆盖已上榜剧。本节单独收录「最近更新」聚合列表与媒体新剧盘点文中的剧，<b>热度一律未查到、不与头部榜横比</b>。</div>
+  <h3>聚合站「最近更新」候选剧（39 部）</h3>
+  <div class="grid2">
+    <div class="mini-card">
+      <div class="mini-title">末世，从搬空全球仓库开始 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">末世/重生/空间</span></div>
+      <div class="mini-plot">萧逸遭死党与前女友背叛葬身尸潮，重回灾变前三个月觉醒储物异能，变卖资产搬空仓库囤粮囤药打造安全屋，招募幸存者向背叛者讨回血债</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175472/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">穿书反派被读心后成团宠了 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">穿书/团宠/读心</span></div>
+      <div class="mini-plot">陆筱筱穿书成结局凄惨的假千金，表面扮恶毒女配内心吐槽全世界，殊不知心声全家都听得见，剧情越走越歪反混成团宠</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175159/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">第二次成年 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/中年女性/治愈</span></div>
+      <div class="mini-plot">陈静结婚十七周年遭丈夫出轨提离婚、职场被降职双重打击，从考驾照开始重启人生，串联职场逆袭、重组家庭磨合与亲子和解</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175157/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">怪力财迷，先算账后动心 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/甜宠/马甲</span></div>
+      <div class="mini-plot">力大无穷的财迷少女林晚晚应聘护工照料瘫痪总裁顾沉，二人是幼年旧识，硬核督促复健、重回武当山求医，联手反击野心亲戚并拨开父辈车祸阴谋</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175169/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">二十年守候终梦醒 <span class="eps">第65集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">豪门/觉醒/复仇</span></div>
+      <div class="mini-plot">全职主妇林瑶因不让丈夫为干妹妹备专属副驾遭全家羞辱，心死离家后揭露千亿董事长身份，手撕薄情丈夫恶婆婆白眼狼儿子打脸绿茶小三</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175170/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">东宫落难栖我柴门 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">古装/爱情/疗愈</span></div>
+      <div class="mini-plot">兽医鹿聆救下重伤的霍昀，霍昀留她小屋养伤被烟火日常熨平心底荒芜，二人屡陷险境却并肩破局，收获势均力敌的爱情</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175171/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">分家那天，我把爷爷问住了 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">年代/家庭/逆袭</span></div>
+      <div class="mini-plot">乔家二房连生三女被视绝户，分家不公，赵秋月带三女搬进废弃马房，面对爷爷轻视奶奶刁难，三姐妹用知识改变命运撑起自己的家</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175174/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">我想要个家 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">现实/亲情/留守</span></div>
+      <div class="mini-plot">留守儿童林小春父母失散，饱受叔婶虐待逃亡中被孤寡李爷爷收养，刻苦读书考全县第一，父亲恢复记忆归来，两份温暖拼成完整的家</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175172/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">八零老太重生后摆摊馋哭前夫家 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">年代/重生/创业</span></div>
+      <div class="mini-plot">童养媳赵春花冻死桥洞后重生回儿子婚礼，斧头砸婚车掀桌分家，护女摆摊创业、撤儿子接班指标讨工龄补偿，小摊变连锁饭庄</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175155/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">狂龙出山，我在城里打拼成为枭雄 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/逆袭/战神</span></div>
+      <div class="mini-plot">陈猛发现女友与包工头哥们背叛，暴揍二人后与发小扎根城里从小小保安做起，敢打敢拼从打工仔逆袭成一方大佬</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175156/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">我在人间送最后一程 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">现实/殡葬/悬疑</span></div>
+      <div class="mini-plot">退伍归乡的陆沉舟接手父亲的殡仪馆与往生簿，为无人认领的亡者送别，面对长河殡葬围剿循矿难线索追查，让七个被抹去的名字重见天日</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175158/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">年下总裁的蓄谋偏爱 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/甜宠/复仇</span></div>
+      <div class="mini-plot">全职主妇秦臻遭前夫背叛带病儿跌入谷底，招惹上隐姓埋名当甲方监理的业界翘楚凌飞扬，绝地反击重拾画笔手撕渣男斩获设计大奖</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175168/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">闪婚年下奶狗，我事业一路开挂 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/甜宠/职场</span></div>
+      <div class="mini-plot">三十岁都市丽人温玉棠闪婚温柔全职主夫周砚，女主主外搞事业男主主内顾家，职场遭对手栽赃，女主霸气护夫凭实力破解危机</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175173/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">星光彻晓 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/假婚/悬疑</span></div>
+      <div class="mini-plot">财经记者陆星杳与夜场男子苏彻契约假婚，苏彻实为京城苏家二少接近她是为夺项链密钥查父辈惨死真相，身份曝光后分手，三年后追爱并揭开旧案</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175154/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">女枭崛起：从打工仔到女皇 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/逆袭/大女主</span></div>
+      <div class="mini-plot">李青苒因洗脚妹母亲的出身遭富二代羞辱逼其下跪，反手把富二代打进医院被迫退学，凭狠劲从底层逆袭成莞东女王</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/175160/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">走自己的远方 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">现实/支教/成长</span></div>
+      <div class="mini-plot">应届毕业生许知夏不顾家人反对赴青禾村支教，满怀理想却接连碰壁，在与搭档周央磨合中褪去莽撞，为辍学学生奔走、守护面临撤并的乡村学校</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174690/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">年下他蓄谋已久 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/甜宠/暗恋</span></div>
+      <div class="mini-plot">十八岁谭问对哥哥的女友姜霓一见钟情，收起桀骜只对她乖巧，暗恋两年白天帮她夜里撩她，马甲掉落反转强</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174571/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">言小姐，今日宜离婚 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/逆袭/离婚</span></div>
+      <div class="mini-plot">森氏千金言沁隐姓埋名嫁入柯家遭冷待，目睹丈夫为绿茶秘书打破规则后心死离婚，身份曝光柯家追悔，她接管家业邂逅良缘</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174025/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">我，空手赢了一座座地下城 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/异能/赌博</span></div>
+      <div class="mini-plot">冉华女儿治病救命钱被赌博组织骗走，绝望中获暂停时间异能，拿回钱后卷入赌场纷争，协助警方卧底瓦解犯罪集团营救女儿</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174682/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">退婚之后我不再为爱低头 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/逆袭/大女主</span></div>
+      <div class="mini-plot">纪一禾求婚现场被闯入女孩打破，撞破男友陈瑜与许星瑶开房后果断报警分手退婚，投身事业从小员工成长为销售总监以甲方身份站到前男友面前</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174689/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">全能兵王 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/战神/马甲</span></div>
+      <div class="mini-plot">兵王陈诺阴差阳错成女总裁林欣然贴身保镖，一边保护她一边解决商战与地下势力，因黑玉手链引来欧洲地下女王追求</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174680/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">我有神眼可开山河 <span class="eps">第84集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/鉴宝/异能</span></div>
+      <div class="mini-plot">玉矿工人李默得山神赐透视神眼一眼鉴玉，结识维族姑娘阿依古丽，与收石老板结怨后开玉石店、觉醒玉雕技能连开分店</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174566/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">离婚当天，婆婆为我撑腰 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/逆袭/家庭</span></div>
+      <div class="mini-plot">双硕士施凝为照顾重病婆婆放弃事业回农村三年，却遭丈夫出轨，一向依赖她的婆婆竟成最大靠山——婆婆正是四季集团董事长</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174564/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">神医保镖太无敌，专治不服 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/神医/马甲</span></div>
+      <div class="mini-plot">神医林玄下山赴婚约遭未婚妻撕毁婚书羞辱，偶遇中奇毒的冰山女总裁苏清寒施针压制，签同居协议护她并救回苏老爷子，退婚未婚妻浑然不知丢掉的机缘</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174030/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">我是女王 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/鉴宝/逆袭</span></div>
+      <div class="mini-plot">盲女张小花意外治好眼疾并觉醒透视，开启地摊捡漏赌石暴富之路，考进国家文物研究所配合抓捕文物倒卖团伙，最终成为所长</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174035/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">退婚嫡女，竟是绝世神医 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">古装/穿越/神医</span></div>
+      <div class="mini-plot">现代特工神医云芷穿越成毁容遭退婚的国公府嫡女，以银针救战神夜冥，凭灵泉空间解毒祛疤觉醒灵根，打脸庶妹揭露国师阴谋</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174022/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">百万拆迁照人心 <span class="eps">第45集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">现实/家庭/孝道</span></div>
+      <div class="mini-plot">李建国手握三百万拆迁款进城试探儿子孝心，遭儿子儿媳嫌弃不让落座，女儿李梅赶来接走父亲，老人看透真相当众断绝父子关系把拆迁款交给孝顺女儿</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174031/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">灵气种田：我家生鲜全网抢断货第二季 <span class="eps">第70集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">种田/经营/仙侠</span></div>
+      <div class="mini-plot">三百年茶树精林珑魂穿为人女，带临水村从种菱角做成全网生鲜品牌，遭绿源集团打压后联合全村反制，仙门将关面临飞升或留人间守护的选择</div>
+      <div class="mini-src"><a href="https://m.lrxdj.com/eGRm/174024/" target="_blank" rel="noopener">短剧星球</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">真情无价：老宅的继承人是养子 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">现实/家庭/慈善</span></div>
+      <div class="mini-plot">老农周建国察觉亲儿贪图老宅拆迁款，谎称重病负外债试探人心，亲儿逼他断绝关系，养子周阿明四处凑钱守护养父，最终获赠全部财产建慈善中心</div>
+      <div class="mini-src"><a href="https://dedibei.com/kz/178236/" target="_blank" rel="noopener">追光剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">霍先生的专属保姆，惊艳全家 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/萌宝/甜宠</span></div>
+      <div class="mini-plot">苏见微与霍景深一夜后独自生子，五年后贴假痣扮丑应聘霍家保姆，凭厨艺入职，霍景深察觉母子疑点揭穿伪装，一家三口双向奔赴</div>
+      <div class="mini-src"><a href="https://dedibei.com/kz/178889/" target="_blank" rel="noopener">追光剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">斩断十八年错爱，亲手夺回我的钱与人生 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/复仇/大女主</span></div>
+      <div class="mini-plot">全职主妇苏晚晴遭丈夫出轨转移财产，儿子陈牧提前发现父亲算计搜集证据，高考后站出来支持母亲，联合律师争取权益，苏晚重拾金融事业渣男身败名裂</div>
+      <div class="mini-src"><a href="https://dedibei.com/kz/178782/" target="_blank" rel="noopener">追光剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">我大专毕业当柜姐，亮出实力后他们慌了 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/鉴宝/马甲</span></div>
+      <div class="mini-plot">大专毕业的苏念隐去家世在珠宝店做柜姐，实为雕刻泰斗孙女承袭月牙雕刻绝技，戳破前男友未婚妻注油祖母绿真相遭刁难，鉴赏会上姓氏秘密浮出</div>
+      <div class="mini-src"><a href="https://dedibei.com/kz/178231/" target="_blank" rel="noopener">追光剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">为逃抵债闯进他房，才知他等了我十年 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/甜宠/复仇</span></div>
+      <div class="mini-plot">慕晚星为逃被送抵债命运闯入顾砚池房间，顾苦寻十年的小提琴女孩正是她，慕家以骨灰要挟盗取其乐曲参赛，顾护她夺回家产揭穿剽窃，却牵出血海深仇</div>
+      <div class="mini-src"><a href="https://dedibei.com/kz/178776/" target="_blank" rel="noopener">追光剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">蟒口重生，我拆了夺命骗局 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">苗疆/重生/复仇</span></div>
+      <div class="mini-plot">捕蛇世家传人楚莹被丈夫放巨蟒迫害，重生回遇害当晚凭祖传驯蛇技艺反击，揭穿丈夫与闺蜜阴谋和父母被害真相，牵出借蛇复活的疯狂布局</div>
+      <div class="mini-src"><a href="https://xcxbb.net/U7uOBP/161408/" target="_blank" rel="noopener">短剧剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">表姐群里笑我离婚，我反手甩照片 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/家庭/反击</span></div>
+      <div class="mini-plot">苏婉秘密离婚搬回娘家，表姐周敏把此事捅进家族群造谣抹黑，实为其暗中挑拨毁掉婚姻，苏婉手握证据反击洗清污名奔赴新生活</div>
+      <div class="mini-src"><a href="https://xcxbb.net/U7uOBP/162075/" target="_blank" rel="noopener">短剧剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">穿书民国：我的心声无人敢惹 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">民国/穿书/读心</span></div>
+      <div class="mini-plot">现代社畜苏晚棠穿成民国真假千金的乡下真千金，心声被二哥母亲听见，苏家觉醒改写惨死命运，揭穿假千金与渣爹阴谋，与听得见心声的傅砚舟成婚</div>
+      <div class="mini-src"><a href="https://xcxbb.net/U7uOBP/162073/" target="_blank" rel="noopener">短剧剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">退租当天，我把装修全搬空 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">现实/维权/大女主</span></div>
+      <div class="mini-plot">租客赵小曼被亲戚房东坑骗，房东口头答应长租等她自费装好房就反悔想白占装修，她保留票据录音等证据，无损拆走装修依法维权反击</div>
+      <div class="mini-src"><a href="https://xcxbb.net/U7uOBP/162074/" target="_blank" rel="noopener">短剧剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">下嫁三年，沈总高调回归了 <span class="eps">第30集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/复仇/豪门</span></div>
+      <div class="mini-plot">千金沈知意下嫁救她的孟奕辰并让出总经理之位，三次试管终于怀孕，庆祝宴上发现洁癖丈夫与秘书夏若彤用同一酒杯，撞破小叔议论早有奸情与计划</div>
+      <div class="mini-src"><a href="https://xcxbb.net/U7uOBP/162065/" target="_blank" rel="noopener">短剧剧场</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">被羞辱当天，我收回他的一切 <span class="eps">第62集</span></div>
+      <div class="mini-theme"><span class="type-tag t-other">都市/复仇/大女主</span></div>
+      <div class="mini-plot">沈知瑜带母亲中药配方专利嫁陆承泽，三年间他靠专利获利却与助理过密，她心死连夜撤销专利授权令产品线停摆，录音里母亲另两个配方的秘密浮出</div>
+      <div class="mini-src"><a href="https://xcxbb.net/U7uOBP/161414/" target="_blank" rel="noopener">短剧剧场</a></div>
+    </div></div>
+  <h3>媒体「近期新剧盘点」推荐剧（9 部）</h3>
+  <div class="grid2">
+    <div class="mini-card">
+      <div class="mini-title">花开河西巷</div>
+      <div class="mini-meta">媒体盘点 · 现实/温情</div>
+      <div class="mini-plot">据真实好人好事改编，取景姑苏老街，聚焦基层服务者守护特殊群体、打破世俗误解</div>
+      <div class="mini-src"><a href="https://www.toutiao.com/a7707880604670624291" target="_blank" rel="noopener">今日头条</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">南风遇春生</div>
+      <div class="mini-meta">媒体盘点/黑马 · 重生/逆袭</div>
+      <div class="mini-plot">女主前世隐忍，重生后杀伐果断手撕小人独自搞事业带娃逆袭，男主全程偏爱守护双向成就</div>
+      <div class="mini-src"><a href="https://www.toutiao.com/a7707880604670624291" target="_blank" rel="noopener">今日头条</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">明月非善</div>
+      <div class="mini-meta">媒体盘点 · 古装/权谋悬疑</div>
+      <div class="mini-plot">医者心怀苍生却遭构陷身陷绝境，绝境获生机后步步为营揭开师门阴谋与家族恩怨</div>
+      <div class="mini-src"><a href="https://www.toutiao.com/a7707880604670624291" target="_blank" rel="noopener">今日头条</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">狼狼萌宝</div>
+      <div class="mini-meta">媒体盘点 · 萌宝/治愈</div>
+      <div class="mini-plot">软萌小狼崽自带福气被全员偏爱，天真闯祸温柔成长，家族权谋轻爽博弈与双向守护温情并行</div>
+      <div class="mini-src"><a href="https://www.toutiao.com/a7707880604670624291" target="_blank" rel="noopener">今日头条</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">眼泪少爷</div>
+      <div class="mini-meta">媒体盘点 · 甜虐</div>
+      <div class="mini-plot">高冷矜贵男主只对女主展露脆弱，爱恨拉扯、甜度与虐感并存</div>
+      <div class="mini-src"><a href="https://www.toutiao.com/a7707880604670624291" target="_blank" rel="noopener">今日头条</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">包子娃娃</div>
+      <div class="mini-meta">媒体盘点 · 奇幻/治愈</div>
+      <div class="mini-plot">主角历经背叛依然向阳成长，逆风翻盘收获真爱与自我，温暖励志</div>
+      <div class="mini-src"><a href="https://www.toutiao.com/a7707880604670624291" target="_blank" rel="noopener">今日头条</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">凌晨三点预警</div>
+      <div class="mini-meta">媒体盘点/评分 8.0 · 悬疑/心理</div>
+      <div class="mini-plot">心理咨询师女主每天凌晨三点十七分收到死亡预警短信，线索全指向丈夫，深挖后发现惊悚线索是自己三年前埋下的伏笔</div>
+      <div class="mini-src"><a href="https://www.toutiao.com/a7704231772879421994" target="_blank" rel="noopener">今日头条</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">清砚风华</div>
+      <div class="mini-meta">40 集全/媒体盘点 · 古风/大女主</div>
+      <div class="mini-plot">女主隐世蛰伏三年归来洗刷冤屈，至亲窃取她文稿顶替功名身居高位，她不靠男主凭才学智谋揭穿骗局清算恩怨</div>
+      <div class="mini-src"><a href="https://www.toutiao.com/a7704231772879421994" target="_blank" rel="noopener">今日头条</a></div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">别离是归期</div>
+      <div class="mini-meta">媒体盘点/甜虐 · 穿越/甜虐</div>
+      <div class="mini-plot">现代女主穿成王爷义妹，以兄妹相称隐忍爱意，男主被构陷打入冤狱，她孤身闯大理寺为其洗冤，双向奔赴</div>
+      <div class="mini-src"><a href="https://www.toutiao.com/a7704231772879421994" target="_blank" rel="noopener">今日头条</a></div>
+    </div>
+  </div>
+  <h3>同设定扎堆信号</h3>
+  <div class="card"><ul><li><strong>「隐富千金/董事长下嫁被轻贱，离婚/被羞辱后亮身份打脸」扎堆</strong>：《二十年守候终梦醒》《言小姐，今日宜离婚》《离婚当天，婆婆为我撑腰》《下嫁三年，沈总高调回归了》《被羞辱当天，我收回他的一切》《把我爸妈当保姆，不知我是集团掌舵人》《首辅娇娘》——同一套「身份隐藏→受辱→掉马打脸」配方在聚合页与媒体榜大量复用，选题同质化严重。</li><li><strong>「读心/心声被听见」设定扩散</strong>：《穿书反派被读心后成团宠了》《穿书民国：我的心声无人敢惹》——从现代穿书延伸到民国真假千金，心声外泄成撒爽点的新变体。</li><li><strong>「年下霸总/奶狗」集中上新</strong>：《年下总裁的蓄谋偏爱》《年下他蓄谋已久》《闪婚年下奶狗，我事业一路开挂》《京夜诱温》——年下忠犬 + 大女主事业线是本期女频新剧的高频组合。</li><li><strong>「年代八零重生摆摊/分家创业」持续供需</strong>：《八零老太重生后摆摊馋哭前夫家》《重生八零：这个名额我不让了》《分家那天，我把爷爷问住了》《荒年辣娘子第二季》——年代伦理 + 逆袭仍是聚合页稳定供给，与红果头部《穿越八零》遥相呼应。</li><li><strong>「现实向无爽文」差异化冒头</strong>：《第二次成年》《走自己的远方》《我在人间送最后一程》《退租当天，我把装修全搬空》《花开河西巷》《归路》——中年重启、支教、殡葬、维权、破镜重圆等生活议题批量出现。</li></ul></div>
+</section>
+
+<section id="s3">
+  <h2>结构性信号</h2>
+  <div class="card"><ul><li><strong>国内「真人剧 IP 复利 + 现实向差异化」双线冒头</strong>：媒体榜显示《十八岁太奶奶》第五部（首日破亿）、《首辅娇娘》（4 天破 10 亿）等真人系列 IP 靠群像演技形成复利，同时聚合页批量出现《第二次成年》《走自己的远方》《我在人间送最后一程》《归路》等无悬浮爽文的生活议题剧（中年重启/支教/殡葬/破镜重圆），说明「AI 拍不出来的真实感」正成为真人剧的差异化护城河；漫剧侧则持续用「修仙+强情感关系（带娃/守护）」替代纯升级打怪。</li></ul></div>
+</section>
+
+<section id="s4">
+  <h2>行业参照</h2>
+  <div class="card"><ul><li>行业级付费转化率均值：AI 短剧约 <strong>23.6%</strong>、真人短剧约 <strong>23.9%</strong>（媒体口径，<strong>非单剧真值、需核实</strong>）。</li><li>「热力值÷2×0.65≈实际充值」为业内流传的<strong>经验公式</strong>，非平台公开算法、<strong>不可复算、不得据此推算任何具体剧目的收入</strong>。</li><li>以上均为行业级统计/经验，<strong>不构成任何投资或创业决策建议</strong>。</li></ul></div>
+  <h3>免责声明</h3>
+  <div class="card"><ul><li>本榜数据来自第三方榜单与媒体转引，<strong>均需核实</strong>；热度值、播放量、收藏点赞、热播指数是<strong>不同维度，不可横向比较</strong>。</li><li>榜单只反映<strong>当下热度，不代表口碑与收益</strong>。</li><li>本文<strong>不构成任何投资或创业决策建议</strong>。</li></ul></div>
+</section>
+
+<footer>数据需核实 · 榜单只反映当下热、不代表口碑与收益 · 不构成投资或创业决策建议</footer>
+</div>
+<script>
+const links=[...document.querySelectorAll('nav a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('on'));const a=links.find(l=>l.getAttribute('href')=='#'+e.target.id);if(a)a.classList.add('on');}})}),{rootMargin:'-15% 0px -75% 0px'});
+secs.forEach(s=>s&&obs.observe(s));
+</script>
+</body>
+</html>
